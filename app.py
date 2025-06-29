@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import joblib
+import plotly.graph_objects as go 
 
 # --- Configuracion inicial ---
 st.set_page_config(page_title="Dashboard Electoral", layout="wide")

@@ -3,4 +3,3 @@ pandas
 plotly
 scikit-learn
 joblib
-plotly.graph_objects
