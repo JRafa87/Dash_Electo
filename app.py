@@ -59,7 +59,7 @@ with tabs[0]:
 
     df_map = df.groupby("region").agg({
         "probabilidad": "mean",
-        "poblacion": "first",
+        "poblacion_region": "first",
         "indecisos": "mean",
         "score": "mean",
         "sentimiento": "mean"
@@ -100,7 +100,7 @@ with tabs[0]:
         df_map, lat="lat", lon="lon", color="indecisos",
         size="poblacion", hover_name="region",
         hover_data={
-            "poblacion": True,
+            "poblacion_region": True,
             "indecisos": ":.2f",
             "score": ":.1f",
             "sentimiento": ":.2f",
