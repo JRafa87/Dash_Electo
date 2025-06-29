@@ -57,10 +57,16 @@ with tabs[0]:
                                 title="Distribución de Probabilidades de Victoria")
         st.plotly_chart(fig_prob, use_container_width=True)
 
+import streamlit as st
+import pandas as pd
+import folium
+from streamlit_folium import folium_static
+from branca.colormap import LinearColormap
+
 st.markdown("---")
 st.markdown("**Mapa de Regiones con Datos Completos:**")
 
-# Preprocesamiento de datos
+# Preprocesamiento de datos (manteniendo tu lógica original)
 df_map = df.groupby("region").agg({
     "probabilidad": "mean",
     "poblacion_region": "first",
@@ -69,96 +75,84 @@ df_map = df.groupby("region").agg({
     "sentimiento": "mean"
 }).reset_index()
 
-# Coordenadas mejoradas con capitales regionales
+# Coordenadas actualizadas
 region_coords = {
-    "Lima": [-77.0282, -12.0433],
-    "Cusco": [-71.9673, -13.5250],
-    "Arequipa": [-71.5350, -16.3988],
-    "Piura": [-80.6328, -5.1945],
-    "La Libertad": [-78.9994, -8.1119],
-    "Junín": [-75.2099, -11.7833],
-    "Puno": [-70.0199, -15.8402],
-    "Loreto": [-73.2532, -3.7493],
-    "Ancash": [-77.6253, -9.5280],
-    "Tacna": [-70.2544, -18.0140],
-    "Callao": [-77.1182, -12.0500],
-    "Huánuco": [-76.2410, -9.9294],
-    "Ayacucho": [-74.2236, -13.1631],
-    "San Martín": [-76.1572, -6.5069],
-    "Ica": [-75.7358, -14.0678],
-    "Moquegua": [-70.9400, -17.1956],
-    "Tumbes": [-80.4526, -3.5669],
-    "Ucayali": [-73.0877, -8.3792],
-    "Apurímac": [-72.8902, -13.6337],
-    "Pasco": [-76.2562, -10.6864],
-    "Madre de Dios": [-69.1909, -12.5999],
-    "Cajamarca": [-78.5000, -7.1611],
-    "Huancavelica": [-74.9764, -12.7864],
-    "Amazonas": [-78.5000, -5.0667]
+    "Lima": [-12.0433, -77.0282],
+    "Cusco": [-13.5250, -71.9673],
+    "Arequipa": [-16.3988, -71.5350],
+    "Piura": [-5.1945, -80.6328],
+    "La Libertad": [-8.1119, -78.9994],
+    "Junín": [-11.7833, -75.2099],
+    "Puno": [-15.8402, -70.0199],
+    "Loreto": [-3.7493, -73.2532],
+    "Ancash": [-9.5280, -77.6253],
+    "Tacna": [-18.0140, -70.2544],
+    "Callao": [-12.0500, -77.1182],
+    "Huánuco": [-9.9294, -76.2410],
+    "Ayacucho": [-13.1631, -74.2236],
+    "San Martín": [-6.5069, -76.1572],
+    "Ica": [-14.0678, -75.7358],
+    "Moquegua": [-17.1956, -70.9400],
+    "Tumbes": [-3.5669, -80.4526],
+    "Ucayali": [-8.3792, -73.0877],
+    "Apurímac": [-13.6337, -72.8902],
+    "Pasco": [-10.6864, -76.2562],
+    "Madre de Dios": [-12.5999, -69.1909],
+    "Cajamarca": [-7.1611, -78.5000],
+    "Huancavelica": [-12.7864, -74.9764],
+    "Amazonas": [-5.0667, -78.5000]
 }
 
-# Añadir coordenadas y normalizar tamaños
-df_map["lon"] = df_map["region"].apply(lambda x: region_coords.get(x, [None])[0])
-df_map["lat"] = df_map["region"].apply(lambda x: region_coords.get(x, [None, None])[1])
-df_map = df_map.dropna(subset=["lon", "lat"])
+# Añadir coordenadas
+df_map["coords"] = df_map["region"].apply(lambda x: region_coords.get(x, [None, None]))
+df_map = df_map.dropna(subset=["coords"])
 
-# Escalar el tamaño para mejor visualización
-df_map["size"] = (df_map["poblacion_region"] / df_map["poblacion_region"].max()) * 50 + 10
+# Crear mapa centrado en Perú
+m = folium.Map(location=[-9.5, -75], zoom_start=5, tiles='CartoDB positron')
 
-# Crear el mapa interactivo
-fig = go.Figure()
-
-# Añadir capa base de Perú
-fig.add_trace(go.Scattermapbox(
-    lat=df_map["lat"],
-    lon=df_map["lon"],
-    mode='markers',
-    marker=go.scattermapbox.Marker(
-        size=df_map["size"],
-        color=df_map["indecisos"],
-        colorscale="Rainbow",
-        cmin=df_map["indecisos"].min(),
-        cmax=df_map["indecisos"].max(),
-        colorbar_title="% Indecisos",
-        opacity=0.8,
-        sizemode='diameter'
-    ),
-    text=df_map.apply(lambda row: (
-        f"<b>{row['region']}</b><br>"
-        f"Población: {row['poblacion_region']:,.0f}<br>"
-        f"Indecisos: {row['indecisos']:.2%}<br>"
-        f"Score: {row['score']:.1f}<br>"
-        f"Sentimiento: {row['sentimiento']:.2f}<br>"
-        f"Probabilidad: {row['probabilidad']:.2%}"
-    ), axis=1),
-    hoverinfo='text'
-))
-
-# Personalizar el layout
-fig.update_layout(
-    mapbox_style="stamen-terrain",
-    mapbox_zoom=4.2,
-    mapbox_center={"lat": -9.5, "lon": -75},
-    margin={"r": 0, "t": 0, "l": 0, "b": 0},
-    height=600,
-    hoverlabel=dict(
-        bgcolor="white",
-        font_size=14,
-        font_family="Arial"
-    )
+# Crear escala de colores para los indecisos
+colormap = LinearColormap(
+    colors=['blue', 'red'],
+    vmin=df_map['indecisos'].min(),
+    vmax=df_map['indecisos'].max()
 )
 
-# Añadir etiquetas de texto para las regiones
-fig.add_trace(go.Scattermapbox(
-    lat=df_map["lat"],
-    lon=df_map["lon"],
-    mode='text',
-    text=df_map["region"],
-    textfont=dict(size=10, color='black'),
-    hoverinfo='none'
-))
+# Añadir marcadores para cada región
+for index, row in df_map.iterrows():
+    lat, lon = row['coords']
+    popup_content = f"""
+    <div style="width:250px;">
+        <h4 style="margin-bottom:5px; border-bottom:1px solid #ccc; padding-bottom:5px;">{row['region']}</h4>
+        <table style="width:100%; font-size:12px;">
+            <tr><td><b>Población:</b></td><td style="text-align:right;">{row['poblacion_region']:,.0f}</td></tr>
+            <tr><td><b>Indecisos:</b></td><td style="text-align:right;">{row['indecisos']:.2%}</td></tr>
+            <tr><td><b>Score:</b></td><td style="text-align:right;">{row['score']:.1f}</td></tr>
+            <tr><td><b>Sentimiento:</b></td><td style="text-align:right;">{row['sentimiento']:.2f}</td></tr>
+            <tr><td><b>Probabilidad:</b></td><td style="text-align:right;">{row['probabilidad']:.2%}</td></tr>
+        </table>
+    </div>
+    """
+    
+    # Tamaño proporcional a la población (ajustado)
+    marker_size = max(10, min(50, 10 + (row['poblacion_region'] / df_map['poblacion_region'].max()) * 40))
+    
+    folium.CircleMarker(
+        location=[lat, lon],
+        radius=marker_size,
+        popup=folium.Popup(popup_content, max_width=300),
+        color=colormap(row['indecisos']),
+        fill=True,
+        fill_color=colormap(row['indecisos']),
+        fill_opacity=0.7,
+        weight=1
+    ).add_to(m)
 
-st.plotly_chart(fig, use_container_width=True)
+# Añadir leyenda de colores
+colormap.caption = 'Porcentaje de Indecisos'
+colormap.add_to(m)
+
+# Mostrar el mapa
+folium_static(m, width=800, height=600)
 
 # ----------- TAB 2: Análisis Regional -----------
 with tabs[1]:
