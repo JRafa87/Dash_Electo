@@ -54,70 +54,108 @@ with tabs[0]:
                                 title="Distribución de Probabilidades de Victoria")
         st.plotly_chart(fig_prob, use_container_width=True)
 
-    st.markdown("---")
-    st.markdown("**Mapa de Regiones con Datos Completos:**")
+st.markdown("---")
+st.markdown("**Mapa de Regiones con Datos Completos:**")
 
-    df_map = df.groupby("region").agg({
-        "probabilidad": "mean",
-        "poblacion_region": "first",
-        "indecisos": "mean",
-        "score": "mean",
-        "sentimiento": "mean"
-    }).reset_index()
+# Preprocesamiento de datos
+df_map = df.groupby("region").agg({
+    "probabilidad": "mean",
+    "poblacion_region": "first",
+    "indecisos": "mean",
+    "score": "mean",
+    "sentimiento": "mean"
+}).reset_index()
 
-    region_coords = {
-        "Lima": [-77.0428, -12.0464],
-        "Cusco": [-71.9675, -13.5319],
-        "Arequipa": [-71.5375, -16.4090],
-        "Piura": [-80.6333, -5.1945],
-        "La Libertad": [-79.0333, -8.1150],
-        "Junín": [-75.0000, -11.2500],
-        "Puno": [-70.0152, -15.8402],
-        "Loreto": [-73.2472, -3.7491],
-        "Ancash": [-77.6047, -9.5261],
-        "Tacna": [-70.2486, -18.0066],
-        "Callao": [-77.129, -12.05],
-        "Huánuco": [-76.2422, -9.9306],
-        "Ayacucho": [-74.2167, -13.1588],
-        "San Martín": [-76.5527, -7.0083],
-        "Ica": [-75.7306, -14.0678],
-        "Moquegua": [-70.9342, -17.198],
-        "Tumbes": [-80.4531, -3.5669],
-        "Ucayali": [-74.3797, -8.3791],
-        "Apurímac": [-73.0385, -13.6512],
-        "Pasco": [-75.25, -10.6864],
-        "Madre de Dios": [-70.2479, -12.5933],
-        "Cajamarca": [-78.5003, -7.1638],
-        "Huancavelica": [-74.9479, -12.7864],
-        "Amazonas": [-77.8691, -5.0722]
-    }
+# Coordenadas mejoradas con capitales regionales
+region_coords = {
+    "Lima": [-77.0282, -12.0433],
+    "Cusco": [-71.9673, -13.5250],
+    "Arequipa": [-71.5350, -16.3988],
+    "Piura": [-80.6328, -5.1945],
+    "La Libertad": [-78.9994, -8.1119],
+    "Junín": [-75.2099, -11.7833],
+    "Puno": [-70.0199, -15.8402],
+    "Loreto": [-73.2532, -3.7493],
+    "Ancash": [-77.6253, -9.5280],
+    "Tacna": [-70.2544, -18.0140],
+    "Callao": [-77.1182, -12.0500],
+    "Huánuco": [-76.2410, -9.9294],
+    "Ayacucho": [-74.2236, -13.1631],
+    "San Martín": [-76.1572, -6.5069],
+    "Ica": [-75.7358, -14.0678],
+    "Moquegua": [-70.9400, -17.1956],
+    "Tumbes": [-80.4526, -3.5669],
+    "Ucayali": [-73.0877, -8.3792],
+    "Apurímac": [-72.8902, -13.6337],
+    "Pasco": [-76.2562, -10.6864],
+    "Madre de Dios": [-69.1909, -12.5999],
+    "Cajamarca": [-78.5000, -7.1611],
+    "Huancavelica": [-74.9764, -12.7864],
+    "Amazonas": [-78.5000, -5.0667]
+}
 
-    df_map["lon"] = df_map["region"].map(lambda x: region_coords.get(x, [None, None])[0])
-    df_map["lat"] = df_map["region"].map(lambda x: region_coords.get(x, [None, None])[1])
-    df_map = df_map.dropna(subset=["lon", "lat"])
+# Añadir coordenadas y normalizar tamaños
+df_map["lon"] = df_map["region"].apply(lambda x: region_coords.get(x, [None])[0])
+df_map["lat"] = df_map["region"].apply(lambda x: region_coords.get(x, [None, None])[1])
+df_map = df_map.dropna(subset=["lon", "lat"])
 
-    fig_map_points = px.scatter_mapbox(
-        df_map, lat="lat", lon="lon", color="indecisos",
-        size="poblacion_region", hover_name="region",
-        hover_data={
-            "poblacion_region": True,
-            "indecisos": ":.2f",
-            "score": ":.1f",
-            "sentimiento": ":.2f",
-            "probabilidad": ":.2f",
-            "lat": False,
-            "lon": False
-        },
-        color_continuous_scale="bluered", zoom=4.5, height=500
+# Escalar el tamaño para mejor visualización
+df_map["size"] = (df_map["poblacion_region"] / df_map["poblacion_region"].max()) * 50 + 10
+
+# Crear el mapa interactivo
+fig = go.Figure()
+
+# Añadir capa base de Perú
+fig.add_trace(go.Scattermapbox(
+    lat=df_map["lat"],
+    lon=df_map["lon"],
+    mode='markers',
+    marker=go.scattermapbox.Marker(
+        size=df_map["size"],
+        color=df_map["indecisos"],
+        colorscale="Rainbow",
+        cmin=df_map["indecisos"].min(),
+        cmax=df_map["indecisos"].max(),
+        colorbar_title="% Indecisos",
+        opacity=0.8,
+        sizemode='diameter'
+    ),
+    text=df_map.apply(lambda row: (
+        f"<b>{row['region']}</b><br>"
+        f"Población: {row['poblacion_region']:,.0f}<br>"
+        f"Indecisos: {row['indecisos']:.2%}<br>"
+        f"Score: {row['score']:.1f}<br>"
+        f"Sentimiento: {row['sentimiento']:.2f}<br>"
+        f"Probabilidad: {row['probabilidad']:.2%}"
+    ), axis=1),
+    hoverinfo='text'
+))
+
+# Personalizar el layout
+fig.update_layout(
+    mapbox_style="stamen-terrain",
+    mapbox_zoom=4.2,
+    mapbox_center={"lat": -9.5, "lon": -75},
+    margin={"r": 0, "t": 0, "l": 0, "b": 0},
+    height=600,
+    hoverlabel=dict(
+        bgcolor="white",
+        font_size=14,
+        font_family="Arial"
     )
-    fig_map_points.update_layout(
-        mapbox_style="carto-positron",
-        mapbox_center={"lat": -9.189967, "lon": -75.015152},
-        mapbox_zoom=4.5
-    )
-    fig_map_points.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+)
 
-    st.plotly_chart(fig_map_points, use_container_width=True)
+# Añadir etiquetas de texto para las regiones
+fig.add_trace(go.Scattermapbox(
+    lat=df_map["lat"],
+    lon=df_map["lon"],
+    mode='text',
+    text=df_map["region"],
+    textfont=dict(size=10, color='black'),
+    hoverinfo='none'
+))
+
+st.plotly_chart(fig, use_container_width=True)
 
 # ----------- TAB 2: Análisis Regional -----------
 with tabs[1]:
