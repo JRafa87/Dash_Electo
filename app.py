@@ -54,13 +54,51 @@ with tabs[0]:
                                 title="Distribución de Probabilidades de Victoria")
         st.plotly_chart(fig_prob, use_container_width=True)
 
-    st.markdown("---")
+        st.markdown("---")
     st.markdown("**Mapa de Regiones con Promedio de Probabilidad:**")
     df_map = df.groupby("region")["probabilidad"].mean().reset_index()
-    fig_map = px.choropleth(df_map, locations="region", locationmode="geojson-id",
-                            color="probabilidad", scope="south america",
-                            color_continuous_scale="blues", title="Probabilidad promedio por región")
-    st.plotly_chart(fig_map, use_container_width=True)
+
+    region_coords = {
+        "Lima": [-77.0428, -12.0464],
+        "Cusco": [-71.9675, -13.5319],
+        "Arequipa": [-71.5375, -16.4090],
+        "Piura": [-80.6333, -5.1945],
+        "La Libertad": [-79.0333, -8.1150],
+        "Junín": [-75.0000, -11.2500],
+        "Puno": [-70.0152, -15.8402],
+        "Loreto": [-73.2472, -3.7491],
+        "Ancash": [-77.6047, -9.5261],
+        "Tacna": [-70.2486, -18.0066],
+        "Callao": [-77.129, -12.05],
+        "Huánuco": [-76.2422, -9.9306],
+        "Ayacucho": [-74.2167, -13.1588],
+        "San Martín": [-76.5527, -7.0083],
+        "Ica": [-75.7306, -14.0678],
+        "Moquegua": [-70.9342, -17.198],
+        "Tumbes": [-80.4531, -3.5669],
+        "Ucayali": [-74.3797, -8.3791],
+        "Apurímac": [-73.0385, -13.6512],
+        "Pasco": [-75.25, -10.6864],
+        "Madre de Dios": [-70.2479, -12.5933],
+        "Cajamarca": [-78.5003, -7.1638],
+        "Huancavelica": [-74.9479, -12.7864],
+        "Amazonas": [-77.8691, -5.0722]
+    }
+
+    df_map["lon"] = df_map["region"].map(lambda x: region_coords.get(x, [None, None])[0])
+    df_map["lat"] = df_map["region"].map(lambda x: region_coords.get(x, [None, None])[1])
+    df_map = df_map.dropna(subset=["lon", "lat"])
+
+    fig_map_points = px.scatter_mapbox(
+        df_map, lat="lat", lon="lon", color="probabilidad",
+        size="probabilidad", hover_name="region",
+        hover_data={"lat": False, "lon": False, "probabilidad":":.2f"},
+        color_continuous_scale="blues", zoom=4.5, height=500
+    )
+    fig_map_points.update_layout(mapbox_style="carto-positron")
+    fig_map_points.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+
+    st.plotly_chart(fig_map_points, use_container_width=True)
 
 # ----------- TAB 2: Análisis Regional -----------
 with tabs[1]:
