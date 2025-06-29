@@ -57,16 +57,14 @@ with tabs[0]:
                                 title="Distribución de Probabilidades de Victoria")
         st.plotly_chart(fig_prob, use_container_width=True)
 
-import streamlit as st
-import pandas as pd
-import folium
+
 from streamlit_folium import folium_static
 from branca.colormap import LinearColormap
 
 st.markdown("---")
 st.markdown("**Mapa de Regiones con Datos Completos:**")
 
-# Preprocesamiento de datos (manteniendo tu lógica original)
+# Preprocesamiento de datos
 df_map = df.groupby("region").agg({
     "probabilidad": "mean",
     "poblacion_region": "first",
@@ -75,7 +73,7 @@ df_map = df.groupby("region").agg({
     "sentimiento": "mean"
 }).reset_index()
 
-# Coordenadas actualizadas
+# Coordenadas actualizadas y verificadas (lat, lon)
 region_coords = {
     "Lima": [-12.0433, -77.0282],
     "Cusco": [-13.5250, -71.9673],
@@ -103,78 +101,61 @@ region_coords = {
     "Amazonas": [-5.0667, -78.5000]
 }
 
-# Añadir coordenadas
-df_map["coords"] = df_map["region"].apply(lambda x: region_coords.get(x, [None, None]))
-df_map = df_map.dropna(subset=["coords"])
+# Añadir coordenadas como columnas separadas
+df_map["lat"] = df_map["region"].apply(lambda x: region_coords.get(x, [None])[0])
+df_map["lon"] = df_map["region"].apply(lambda x: region_coords.get(x, [None, None])[1] if region_coords.get(x) else None)
+
+# Filtrar y convertir a float
+df_map = df_map.dropna(subset=["lat", "lon"])
+df_map["lat"] = df_map["lat"].astype(float)
+df_map["lon"] = df_map["lon"].astype(float)
 
 # Crear mapa centrado en Perú
 m = folium.Map(location=[-9.5, -75], zoom_start=5, tiles='CartoDB positron')
 
-# Crear escala de colores para los indecisos
+# Crear escala de colores
 colormap = LinearColormap(
     colors=['blue', 'red'],
     vmin=df_map['indecisos'].min(),
     vmax=df_map['indecisos'].max()
 )
 
-# Añadir marcadores para cada región
+# Añadir marcadores verificados
 for index, row in df_map.iterrows():
-    lat, lon = row['coords']
-    popup_content = f"""
-    <div style="width:250px;">
-        <h4 style="margin-bottom:5px; border-bottom:1px solid #ccc; padding-bottom:5px;">{row['region']}</h4>
-        <table style="width:100%; font-size:12px;">
-            <tr><td><b>Población:</b></td><td style="text-align:right;">{row['poblacion_region']:,.0f}</td></tr>
-            <tr><td><b>Indecisos:</b></td><td style="text-align:right;">{row['indecisos']:.2%}</td></tr>
-            <tr><td><b>Score:</b></td><td style="text-align:right;">{row['score']:.1f}</td></tr>
-            <tr><td><b>Sentimiento:</b></td><td style="text-align:right;">{row['sentimiento']:.2f}</td></tr>
-            <tr><td><b>Probabilidad:</b></td><td style="text-align:right;">{row['probabilidad']:.2%}</td></tr>
-        </table>
-    </div>
-    """
-    
-    # Tamaño proporcional a la población (ajustado)
-    marker_size = max(10, min(50, 10 + (row['poblacion_region'] / df_map['poblacion_region'].max()) * 40))
-    
-    folium.CircleMarker(
-        location=[lat, lon],
-        radius=marker_size,
-        popup=folium.Popup(popup_content, max_width=300),
-        color=colormap(row['indecisos']),
-        fill=True,
-        fill_color=colormap(row['indecisos']),
-        fill_opacity=0.7,
-        weight=1
-    ).add_to(m)
+    if pd.notnull(row['lat']) and pd.notnull(row['lon']):
+        popup_content = f"""
+        <div style="width:250px;">
+            <h4 style="margin-bottom:5px; border-bottom:1px solid #ccc; padding-bottom:5px;">{row['region']}</h4>
+            <table style="width:100%; font-size:12px;">
+                <tr><td><b>Población:</b></td><td style="text-align:right;">{row['poblacion_region']:,.0f}</td></tr>
+                <tr><td><b>Indecisos:</b></td><td style="text-align:right;">{row['indecisos']:.2%}</td></tr>
+                <tr><td><b>Score:</b></td><td style="text-align:right;">{row['score']:.1f}</td></tr>
+                <tr><td><b>Sentimiento:</b></td><td style="text-align:right;">{row['sentimiento']:.2f}</td></tr>
+                <tr><td><b>Probabilidad:</b></td><td style="text-align:right;">{row['probabilidad']:.2%}</td></tr>
+            </table>
+        </div>
+        """
+        
+        # Tamaño proporcional con límites
+        marker_size = max(5, min(30, 5 + (row['poblacion_region'] / df_map['poblacion_region'].max()) * 25))
+        
+        folium.CircleMarker(
+            location=[row['lat'], row['lon']],
+            radius=marker_size,
+            popup=folium.Popup(popup_content, max_width=300),
+            color=colormap(row['indecisos']),
+            fill=True,
+            fill_color=colormap(row['indecisos']),
+            fill_opacity=0.7,
+            weight=1
+        ).add_to(m)
 
-# Añadir leyenda de colores
+# Añadir leyenda
 colormap.caption = 'Porcentaje de Indecisos'
 colormap.add_to(m)
 
 # Mostrar el mapa
 folium_static(m, width=800, height=600)
-
-# ----------- TAB 2: Análisis Regional -----------
-with tabs[1]:
-    st.subheader("Análisis por Región")
-
-    region_sel = st.selectbox("Selecciona una región:", sorted(df['region'].unique()))
-    df_region = df[df['region'] == region_sel]
-
-    col1, col2 = st.columns(2)
-    with col1:
-        fig_score = px.box(df_region, x="candidato", y="score", color="candidato",
-                           title="Score por Candidato en " + region_sel)
-        st.plotly_chart(fig_score, use_container_width=True)
-
-    with col2:
-        fig_sent = px.bar(df_region.groupby("candidato")["sentimiento"].mean().reset_index(),
-                          x="candidato", y="sentimiento", color="candidato",
-                          title="Sentimiento Promedio por Candidato")
-        st.plotly_chart(fig_sent, use_container_width=True)
-
-    st.markdown("---")
-    st.dataframe(df_region.head(10))
 
 # ----------- TAB 3: Demografía -----------
 with tabs[2]:
