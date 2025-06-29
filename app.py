@@ -56,7 +56,14 @@ with tabs[0]:
 
         st.markdown("---")
     st.markdown("**Mapa de Regiones con Promedio de Probabilidad:**")
-    df_map = df.groupby("region")["probabilidad"].mean().reset_index()
+    df_map = df.groupby("region").agg({
+    "probabilidad": "mean",
+    "poblacion": "first",         # O "sum" si cada fila representa un subconjunto
+    "indecisos": "mean",
+    "score": "mean",
+    "sentimiento": "mean"
+     }).reset_index()
+
 
     region_coords = {
         "Lima": [-77.0428, -12.0464],
@@ -92,10 +99,22 @@ with tabs[0]:
     fig_map_points = px.scatter_mapbox(
         df_map, lat="lat", lon="lon", color="probabilidad",
         size="probabilidad", hover_name="region",
-        hover_data={"lat": False, "lon": False, "probabilidad":":.2f"},
+        hover_data=hover_data={
+    "poblacion": True,
+    "indecisos": ":.2f",
+    "score": ":.1f",
+    "sentimiento": ":.2f",
+    "probabilidad": ":.2f",
+    "lat": False,
+    "lon": False
+},
         color_continuous_scale="blues", zoom=4.5, height=500
     )
-    fig_map_points.update_layout(mapbox_style="carto-positron")
+    fig_map_points.update_layout(
+    mapbox_style="carto-positron",
+    mapbox_center={"lat": -9.189967, "lon": -75.015152},
+    mapbox_zoom=4.5
+)
     fig_map_points.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
     st.plotly_chart(fig_map_points, use_container_width=True)
