@@ -99,7 +99,7 @@ with tabs[0]:
     fig_map_points = px.scatter_mapbox(
         df_map, lat="lat", lon="lon", color="probabilidad",
         size="probabilidad", hover_name="region",
-        hover_data=hover_data={
+        hover_data={
     "poblacion": True,
     "indecisos": ":.2f",
     "score": ":.1f",
