@@ -54,16 +54,16 @@ with tabs[0]:
                                 title="Distribución de Probabilidades de Victoria")
         st.plotly_chart(fig_prob, use_container_width=True)
 
-        st.markdown("---")
-    st.markdown("**Mapa de Regiones con Promedio de Probabilidad:**")
-    df_map = df.groupby("region").agg({
-    "probabilidad": "mean",
-    "poblacion": "first",         # O "sum" si cada fila representa un subconjunto
-    "indecisos": "mean",
-    "score": "mean",
-    "sentimiento": "mean"
-     }).reset_index()
+    st.markdown("---")
+    st.markdown("**Mapa de Regiones con Datos Completos:**")
 
+    df_map = df.groupby("region").agg({
+        "probabilidad": "mean",
+        "poblacion": "first",
+        "indecisos": "mean",
+        "score": "mean",
+        "sentimiento": "mean"
+    }).reset_index()
 
     region_coords = {
         "Lima": [-77.0428, -12.0464],
@@ -97,24 +97,24 @@ with tabs[0]:
     df_map = df_map.dropna(subset=["lon", "lat"])
 
     fig_map_points = px.scatter_mapbox(
-        df_map, lat="lat", lon="lon", color="probabilidad",
-        size="probabilidad", hover_name="region",
+        df_map, lat="lat", lon="lon", color="indecisos",
+        size="poblacion", hover_name="region",
         hover_data={
-    "poblacion": True,
-    "indecisos": ":.2f",
-    "score": ":.1f",
-    "sentimiento": ":.2f",
-    "probabilidad": ":.2f",
-    "lat": False,
-    "lon": False
-},
-        color_continuous_scale="blues", zoom=4.5, height=500
+            "poblacion": True,
+            "indecisos": ":.2f",
+            "score": ":.1f",
+            "sentimiento": ":.2f",
+            "probabilidad": ":.2f",
+            "lat": False,
+            "lon": False
+        },
+        color_continuous_scale="bluered", zoom=4.5, height=500
     )
     fig_map_points.update_layout(
-    mapbox_style="carto-positron",
-    mapbox_center={"lat": -9.189967, "lon": -75.015152},
-    mapbox_zoom=4.5
-)
+        mapbox_style="carto-positron",
+        mapbox_center={"lat": -9.189967, "lon": -75.015152},
+        mapbox_zoom=4.5
+    )
     fig_map_points.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
     st.plotly_chart(fig_map_points, use_container_width=True)
