@@ -3,7 +3,9 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import joblib
-import plotly.graph_objects as go 
+import folium
+from streamlit_folium import folium_static
+from branca.colormap import LinearColormap 
 
 # --- Configuracion inicial ---
 st.set_page_config(page_title="Dashboard Electoral", layout="wide")
