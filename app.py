@@ -57,8 +57,10 @@ with tabs[0]:
                                 title="Distribución de Probabilidades de Victoria")
         st.plotly_chart(fig_prob, use_container_width=True)
 
-    st.markdown("---")
-    st.markdown("**📈 Distribución de Indicadores por Región**")
+
+    st.subheader("📈 Distribución de Indicadores por Región")
+    #st.markdown("---")
+    #st.markdown("**📈 Distribución de Indicadores por Región**")
 
     df_map = df.groupby("region").agg({
         "probabilidad": "mean",
