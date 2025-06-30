@@ -48,7 +48,6 @@ with tabs[0]:
     with col1:
         fig_ganador = px.histogram(df, x="ganador", color="ganador",
                                    title="Distribución de Ganadores",
-                                   labels={"ganador": "Ganador (1=Sí, 0=No)"},
                                    barmode="group")
         st.plotly_chart(fig_ganador, use_container_width=True)
 
