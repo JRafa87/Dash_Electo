@@ -58,7 +58,7 @@ with tabs[0]:
         st.plotly_chart(fig_prob, use_container_width=True)
 
     st.markdown("---")
-    st.markdown("**📈 Distribución de Indicadores por Región (Gráfico de Barras Apiladas)**")
+    st.markdown("**📈 Distribución de Indicadores por Región**")
 
     df_map = df.groupby("region").agg({
         "probabilidad": "mean",
