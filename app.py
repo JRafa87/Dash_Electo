@@ -76,6 +76,7 @@ with tabs[0]:
         title='Distribución de Población por Región con Indecisos',
         labels={'region': 'Región', 'poblacion_region': 'Población', 'indecisos': 'Indecisos (%)'},
         color_continuous_scale='viridis',
+        custom_data=['indecisos'],
         hover_data=['probabilidad']
     )
 
