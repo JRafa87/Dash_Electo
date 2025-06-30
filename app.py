@@ -66,9 +66,7 @@ with tabs[0]:
         "indecisos": "mean"
     }).reset_index()
 
-    # Asegurar que la columna 'region' sea numérica y ordenar por ella
-    df_map['region'] = pd.to_numeric(df_map['region'], errors='coerce')
-    df_map = df_map.sort_values(by='region')
+
 
     fig_bar_stacked = px.bar(
         df_map,
