@@ -67,6 +67,10 @@ with tabs[0]:
         "indecisos": "mean"
     }).reset_index()
 
+    # Asegurar que la columna 'region' sea numérica y ordenar por ella
+    df_map['region'] = pd.to_numeric(df_map['region'], errors='coerce')
+    df_map = df_map.sort_values(by='region')
+
     fig_bar_stacked = px.bar(
         df_map,
         x='region',
@@ -79,9 +83,9 @@ with tabs[0]:
     )
 
     fig_bar_stacked.update_traces(
-        hovertemplate="<b>%{x}</b><br>" +
+        hovertemplate="<b>Región: %{x}</b><br>" +
                       "Población: %{y:,.0f}<br>" +
-                      "Indecisos: %{color:.2%}<br>" +
+                      "Indecisos: %{customdata[1]:.2%}<br>" +
                       "Probabilidad: %{customdata[0]:.2%}<extra></extra>",
         texttemplate='%{y:,.0f}',
         textposition='outside'
