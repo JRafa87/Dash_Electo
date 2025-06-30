@@ -58,7 +58,7 @@ with tabs[0]:
         st.plotly_chart(fig_prob, use_container_width=True)
 
 
-    st.subheader("📈 Distribución de Indicadores por Región")
+    st.subheader("Distribución de Indicadores por Región")
     #st.markdown("---")
     #st.markdown("**📈 Distribución de Indicadores por Región**")
 
