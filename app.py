@@ -64,9 +64,7 @@ with tabs[0]:
     df_map = df.groupby("region").agg({
         "probabilidad": "mean",
         "poblacion_region": "first",
-        "indecisos": "mean",
-        "score": "mean",
-        "sentimiento": "mean"
+        "indecisos": "mean"
     }).reset_index()
 
     fig_pie = px.pie(
@@ -74,16 +72,14 @@ with tabs[0]:
         values='poblacion_region',
         names='region',
         title='Distribución de Población por Región',
-        custom_data=['indecisos', 'probabilidad', 'score', 'sentimiento']
+        custom_data=['indecisos', 'probabilidad']
     )
 
     fig_pie.update_traces(
         hovertemplate="<b>%{label}</b><br>" +
                       "Población: %{value:,.0f}<br>" +
                       "Indecisos: %{customdata[0]:.2%}<br>" +
-                      "Probabilidad: %{customdata[1]:.2%}<br>" +
-                      "Score: %{customdata[2]:.1f}<br>" +
-                      "Sentimiento: %{customdata[3]:.2f}<extra></extra>",
+                      "Probabilidad: %{customdata[1]:.2%}<extra></extra>",
         textinfo='percent+label',
         textposition='inside',
         insidetextorientation='radial',
