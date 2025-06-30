@@ -74,15 +74,7 @@ with tabs[0]:
         values='poblacion_region',
         names='region',
         title='Distribución de Población por Región',
-        hover_data=['indecisos', 'probabilidad', 'score', 'sentimiento'],
-        labels={
-            'region': 'Región',
-            'poblacion_region': 'Población',
-            'indecisos': '% Indecisos',
-            'probabilidad': 'Probabilidad',
-            'score': 'Score',
-            'sentimiento': 'Sentimiento'
-        }
+        custom_data=['indecisos', 'probabilidad', 'score', 'sentimiento']
     )
 
     fig_pie.update_traces(
