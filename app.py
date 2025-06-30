@@ -76,14 +76,13 @@ with tabs[0]:
         title='Distribución de Población por Región con Indecisos',
         labels={'region': 'Región', 'poblacion_region': 'Población', 'indecisos': 'Indecisos (%)'},
         color_continuous_scale='viridis',
-        hover_data=['indecisos'],
         hover_data=['probabilidad']
     )
 
     fig_bar_stacked.update_traces(
         hovertemplate="<b>%{x}</b><br>" +
                       "Población: %{y:,.0f}<br>" +
-                      "Indecisos: %{color:.2%}<br>" +
+                      "Indecisos: %{marker.color:.2%}<br>" +
                       "Probabilidad: %{marker.color:.2%}<extra></extra>",
         texttemplate='%{y:,.0f}',
         textposition='outside'
