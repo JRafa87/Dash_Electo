@@ -58,74 +58,66 @@ with tabs[0]:
         st.plotly_chart(fig_prob, use_container_width=True)
 
 
-import plotly.express as px
-import matplotlib.pyplot as plt
-import numpy as np
+    st.markdown("---")
+    st.markdown("**📈 Distribución de Indicadores por Región (Gráfico de Pastel)**")
 
-st.markdown("---")
-st.markdown("**Distribución de Indicadores por Región**")
+    df_map = df.groupby("region").agg({
+        "probabilidad": "mean",
+        "poblacion_region": "first",
+        "indecisos": "mean",
+        "score": "mean",
+        "sentimiento": "mean"
+    }).reset_index()
 
-# Preprocesamiento de datos
-df_map = df.groupby("region").agg({
-    "probabilidad": "mean",
-    "poblacion_region": "first",
-    "indecisos": "mean",
-    "score": "mean",
-    "sentimiento": "mean"
-}).reset_index()
-
-# Crear gráfico de pastel interactivo con Plotly
-fig = px.pie(
-    df_map,
-    values='poblacion_region',
-    names='region',
-    title='Distribución de Población por Región',
-    hover_data=['indecisos', 'probabilidad', 'score', 'sentimiento'],
-    labels={
-        'region': 'Región',
-        'poblacion_region': 'Población',
-        'indecisos': '% Indecisos',
-        'probabilidad': 'Probabilidad',
-        'score': 'Score',
-        'sentimiento': 'Sentimiento'
-    }
-)
-
-# Personalizar el tooltip para mostrar toda la información
-fig.update_traces(
-    hovertemplate="<b>%{label}</b><br>" +
-                  "Población: %{value:,.0f}<br>" +
-                  "Indecisos: %{customdata[0]:.2%}<br>" +
-                  "Probabilidad: %{customdata[1]:.2%}<br>" +
-                  "Score: %{customdata[2]:.1f}<br>" +
-                  "Sentimiento: %{customdata[3]:.2f}<extra></extra>",
-    textinfo='percent+label',
-    textposition='inside',
-    insidetextorientation='radial',
-    marker=dict(line=dict(color='#000000', width=1))
-)
-
-# Mejorar el diseño
-fig.update_layout(
-    uniformtext_minsize=10,
-    uniformtext_mode='hide',
-    height=600,
-    legend=dict(
-        orientation="h",
-        yanchor="bottom",
-        y=-0.2,
-        xanchor="center",
-        x=0.5
-    ),
-    hoverlabel=dict(
-        bgcolor="white",
-        font_size=14,
-        font_family="Arial",
-        bordercolor="gray"
+    fig_pie = px.pie(
+        df_map,
+        values='poblacion_region',
+        names='region',
+        title='Distribución de Población por Región',
+        hover_data=['indecisos', 'probabilidad', 'score', 'sentimiento'],
+        labels={
+            'region': 'Región',
+            'poblacion_region': 'Población',
+            'indecisos': '% Indecisos',
+            'probabilidad': 'Probabilidad',
+            'score': 'Score',
+            'sentimiento': 'Sentimiento'
+        }
     )
-)
 
-st.plotly_chart(fig, use_container_width=True)
+    fig_pie.update_traces(
+        hovertemplate="<b>%{label}</b><br>" +
+                      "Población: %{value:,.0f}<br>" +
+                      "Indecisos: %{customdata[0]:.2%}<br>" +
+                      "Probabilidad: %{customdata[1]:.2%}<br>" +
+                      "Score: %{customdata[2]:.1f}<br>" +
+                      "Sentimiento: %{customdata[3]:.2f}<extra></extra>",
+        textinfo='percent+label',
+        textposition='inside',
+        insidetextorientation='radial',
+        marker=dict(line=dict(color='#000000', width=1))
+    )
+
+    fig_pie.update_layout(
+        uniformtext_minsize=10,
+        uniformtext_mode='hide',
+        height=600,
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=-0.2,
+            xanchor="center",
+            x=0.5
+        ),
+        hoverlabel=dict(
+            bgcolor="white",
+            font_size=14,
+            font_family="Arial",
+            bordercolor="gray"
+        )
+    )
+
+    st.plotly_chart(fig_pie, use_container_width=True)
 
 
 # ----------- TAB 2: Análisis Regional -----------
