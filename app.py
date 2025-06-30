@@ -127,47 +127,6 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
-# Gráfico de anillo adicional para otro indicador
-st.subheader("Distribución de Indecisos por Región")
-
-# Crear gráfico de anillo
-fig_donut = px.pie(
-    df_map,
-    values='indecisos',
-    names='region',
-    title='Proporción de Indecisos por Región',
-    hole=0.4,
-    hover_data=['poblacion_region', 'probabilidad'],
-    labels={
-        'indecisos': '% Indecisos',
-        'poblacion_region': 'Población',
-        'probabilidad': 'Probabilidad'
-    }
-)
-
-# Personalizar tooltip
-fig_donut.update_traces(
-    hovertemplate="<b>%{label}</b><br>" +
-                  "Indecisos: %{value:.2%}<br>" +
-                  "Población: %{customdata[0]:,.0f}<br>" +
-                  "Probabilidad: %{customdata[1]:.2%}<extra></extra>",
-    textinfo='percent+label',
-    textposition='inside',
-    marker=dict(line=dict(color='#FFFFFF', width=1))
-)
-
-# Mejorar diseño
-fig_donut.update_layout(
-    height=500,
-    showlegend=False,
-    hoverlabel=dict(
-        bgcolor="white",
-        font_size=12,
-        font_family="Arial"
-    )
-)
-
-st.plotly_chart(fig_donut, use_container_width=True)
 
 # ----------- TAB 2: Análisis Regional -----------
 with tabs[1]:
