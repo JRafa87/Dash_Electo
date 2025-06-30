@@ -83,7 +83,7 @@ with tabs[0]:
         hovertemplate="<b>%{x}</b><br>" +
                       "Población: %{y:,.0f}<br>" +
                       "Indecisos: %{color:.2%}<br>" +
-                      "Probabilidad: %{customdata[0]:.2%}<extra></extra>",
+                      "Probabilidad: %{marker.color:.2%}<extra></extra>",
         texttemplate='%{y:,.0f}',
         textposition='outside'
     )
