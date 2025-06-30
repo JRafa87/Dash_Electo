@@ -169,6 +169,31 @@ fig_donut.update_layout(
 
 st.plotly_chart(fig_donut, use_container_width=True)
 
+# ----------- TAB 2: Análisis Regional -----------
+with tabs[1]:
+    st.subheader("🔍 Análisis por Región")
+
+    region_seleccionada = st.selectbox("Selecciona una región", sorted(df["region"].unique()))
+    df_region = df[df["region"] == region_seleccionada]
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("**Boxplot de Probabilidad por Candidato**")
+        fig_box = px.box(df_region, x="candidato", y="probabilidad", color="candidato",
+                         points="all", hover_data=df_region.columns,
+                         title=f"Probabilidad de Victoria por Candidato en {region_seleccionada}")
+        st.plotly_chart(fig_box, use_container_width=True)
+
+    with col2:
+        st.markdown("**Indecisos por Candidato (Media)**")
+        df_indecisos = df_region.groupby("candidato")["indecisos"].mean().reset_index()
+        fig_bar = px.bar(df_indecisos, x="candidato", y="indecisos", color="candidato",
+                         text_auto=True,
+                         title=f"Porcentaje Promedio de Indecisos por Candidato en {region_seleccionada}")
+        fig_bar.update_traces(hovertemplate='Candidato: %{x}<br>Indecisos: %{y:.2f}%')
+        st.plotly_chart(fig_bar, use_container_width=True)
+
 # ----------- TAB 3: Demografía -----------
 with tabs[2]:
     st.subheader("Análisis Demográfico")
