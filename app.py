@@ -194,6 +194,11 @@ with tabs[1]:
         fig_bar.update_traces(hovertemplate='Candidato: %{x}<br>Indecisos: %{y:.2f}%')
         st.plotly_chart(fig_bar, use_container_width=True)
 
+    st.markdown("---")
+    st.markdown("**📋 Tabla de datos detallados para la región seleccionada**")
+    st.dataframe(df_region.reset_index(drop=True), use_container_width=True, height=400)
+
+
 # ----------- TAB 3: Demografía -----------
 with tabs[2]:
     st.subheader("Análisis Demográfico")
