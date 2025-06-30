@@ -59,7 +59,7 @@ with tabs[0]:
 
 
     st.markdown("---")
-    st.markdown("**📈 Distribución de Indicadores por Región (Gráfico de Pastel)**")
+    st.markdown("**📈 Distribución de Indicadores por Región (Gráfico de Barras Apiladas)**")
 
     df_map = df.groupby("region").agg({
         "probabilidad": "mean",
@@ -67,26 +67,27 @@ with tabs[0]:
         "indecisos": "mean"
     }).reset_index()
 
-    fig_pie = px.pie(
+    fig_bar_stacked = px.bar(
         df_map,
-        values='poblacion_region',
-        names='region',
-        title='Distribución de Población por Región',
-        custom_data=['indecisos', 'probabilidad']
+        x='region',
+        y='poblacion_region',
+        color='indecisos',
+        title='Distribución de Población por Región con Indecisos',
+        labels={'region': 'Región', 'poblacion_region': 'Población', 'indecisos': 'Indecisos (%)'},
+        color_continuous_scale='viridis',
+        hover_data=['probabilidad']
     )
 
-    fig_pie.update_traces(
-        hovertemplate="<b>%{label}</b><br>" +
-                      "Población: %{value:,.0f}<br>" +
-                      "Indecisos: %{customdata[0]:.2%}<br>" +
-                      "Probabilidad: %{customdata[1]:.2%}<extra></extra>",
-        textinfo='percent+label',
-        textposition='inside',
-        insidetextorientation='radial',
-        marker=dict(line=dict(color='#000000', width=1))
+    fig_bar_stacked.update_traces(
+        hovertemplate="<b>%{x}</b><br>" +
+                      "Población: %{y:,.0f}<br>" +
+                      "Indecisos: %{color:.2%}<br>" +
+                      "Probabilidad: %{customdata[0]:.2%}<extra></extra>",
+        texttemplate='%{y:,.0f}',
+        textposition='outside'
     )
 
-    fig_pie.update_layout(
+    fig_bar_stacked.update_layout(
         uniformtext_minsize=10,
         uniformtext_mode='hide',
         height=600,
@@ -105,7 +106,7 @@ with tabs[0]:
         )
     )
 
-    st.plotly_chart(fig_pie, use_container_width=True)
+    st.plotly_chart(fig_bar_stacked, use_container_width=True)
 
 
 # ----------- TAB 2: Análisis Regional -----------
