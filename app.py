@@ -57,7 +57,6 @@ with tabs[0]:
                                 title="Distribución de Probabilidades de Victoria")
         st.plotly_chart(fig_prob, use_container_width=True)
 
-
     st.markdown("---")
     st.markdown("**📈 Distribución de Indicadores por Región (Gráfico de Barras Apiladas)**")
 
@@ -78,13 +77,15 @@ with tabs[0]:
         color='indecisos',
         title='Distribución de Población por Región con Indecisos',
         labels={'region': 'Región', 'poblacion_region': 'Población', 'indecisos': 'Indecisos (%)'},
-        color_continuous_scale='viridis'
+        color_continuous_scale='viridis',
+        hover_data=['probabilidad']
     )
 
     fig_bar_stacked.update_traces(
-        hovertemplate="<b>Región: %{x}</b><br>" +
+        hovertemplate="<b>%{x}</b><br>" +
                       "Población: %{y:,.0f}<br>" +
-                      "Indecisos: %{marker.color:.2%}<extra></extra>",
+                      "Indecisos: %{color:.2%}<br>" +
+                      "Probabilidad: %{customdata[0]:.2%}<extra></extra>",
         texttemplate='%{y:,.0f}',
         textposition='outside'
     )
