@@ -131,7 +131,7 @@ with tabs[1]:
         st.markdown("**Indecisos por Candidato (Media)**")
         df_indecisos = df_region.groupby("candidato")["indecisos"].mean().reset_index()
         # Formatear los valores de los indecisos a dos decimales
-        df_indecisos['indecisos'] = df_indecisos['indecisos'].round(2)
+        df_indecisos['indecisos'] = df_indecisos['indecisos'].round(3)
         fig_bar = px.bar(df_indecisos, x="candidato", y="indecisos", color="candidato",
                          text_auto=True,
                          title=f"Porcentaje Promedio de Indecisos por Candidato en {region_seleccionada}")
