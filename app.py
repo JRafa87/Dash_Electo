@@ -1,4 +1,3 @@
-# app.py
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -40,65 +39,64 @@ st.title("🌏 Predicción Electoral Interactiva")
 # --- Tabs ---
 tabs = st.tabs(["🌐 Resumen Nacional", "🌍 Análisis Regional", "🧑‍🏫 Demografía", "🔮 Modelo de Predicción"])
 
-# ----------- TAB 1: Resumen Nacional -----------
+# ----------- TAB 1: Resumen Nacional ----------- 
 with tabs[0]:
     st.subheader("Resumen Nacional de Ganadores")
 
+    # Dividir en columnas para ajustar los gráficos
     col1, col2 = st.columns(2)
-with col1:
-    st.markdown("**🔎 ¿Quién lidera a nivel nacional?**")
-    st.caption("Este gráfico muestra la cantidad de veces que cada candidato aparece como ganador según las simulaciones del modelo.")
-    fig_ganador = px.histogram(
-        df.sort_values("ganador"), x="ganador", color="ganador",
-        title="Distribución de Ganadores",
-        category_orders={"ganador": df["ganador"].value_counts().index.tolist()},
-        color_discrete_sequence=px.colors.qualitative.Safe
-    )
-    fig_ganador.update_layout(showlegend=False)
-    st.plotly_chart(fig_ganador, use_container_width=True)
 
+    # Gráfico de ganadores (Distribución de Ganadores)
+    with col1:
+        st.markdown("**🔎 ¿Quién lidera a nivel nacional?**")
+        st.caption("Este gráfico muestra la cantidad de veces que cada candidato aparece como ganador según las simulaciones del modelo.")
+        fig_ganador = px.histogram(
+            df.sort_values("ganador"), x="ganador", color="ganador",
+            title="Distribución de Ganadores",
+            category_orders={"ganador": df["ganador"].value_counts().index.tolist()},
+            color_discrete_sequence=px.colors.qualitative.Safe
+        )
+        fig_ganador.update_layout(showlegend=False)
+        st.plotly_chart(fig_ganador, use_container_width=True)
+
+    # Gráfico de probabilidades (Distribución de Probabilidades de Victoria)
     with col2:
-     st.markdown("**📊 ¿Cuán segura es la predicción?**")
-     st.caption("Una mayor probabilidad implica mayor confianza en que ese candidato ganará.")
-    fig_prob = px.histogram(
-        df, x="probabilidad", nbins=20,
-        color_discrete_sequence=["#1f77b4"],
-        title="Distribución de Probabilidades de Victoria"
-    )
-    fig_prob.update_layout(xaxis_title="Probabilidad de Victoria", yaxis_title="Frecuencia")
-    st.plotly_chart(fig_prob, use_container_width=True)
+        st.markdown("**📊 ¿Cuán segura es la predicción?**")
+        st.caption("Una mayor probabilidad implica mayor confianza en que ese candidato ganará.")
+        fig_prob = px.histogram(
+            df, x="probabilidad", nbins=20,
+            color_discrete_sequence=["#1f77b4"],
+            title="Distribución de Probabilidades de Victoria"
+        )
+        fig_prob.update_layout(xaxis_title="Probabilidad de Victoria", yaxis_title="Frecuencia")
+        st.plotly_chart(fig_prob, use_container_width=True)
 
-
+    # Gráfico de comparación regional (Solo en la pestaña de Análisis Regional)
     st.subheader("Distribución de Indicadores por Región")
-    #st.markdown("---")
-    #st.markdown("**📈 Distribución de Indicadores por Región**")
-
     df_map = df.groupby("region").agg({
         "probabilidad": "mean",
         "poblacion_region": "first",
         "indecisos": "mean"
     }).reset_index()
 
-
-
     fig_bar_stacked = px.bar(
-    df_map.sort_values("poblacion_region", ascending=False),
-    x='region',
-    y='poblacion_region',
-    color='indecisos',
-    labels={'region': 'Región', 'poblacion_region': 'Población', 'indecisos': 'Indecisos (%)'},
-    color_continuous_scale='viridis',
-    hover_data={'probabilidad': ':.2f', 'indecisos': ':.2%'}
-)
+        df_map.sort_values("poblacion_region", ascending=False),
+        x='region',
+        y='poblacion_region',
+        color='indecisos',
+        labels={'region': 'Región', 'poblacion_region': 'Población', 'indecisos': 'Indecisos (%)'},
+        color_continuous_scale='viridis',
+        hover_data={'probabilidad': ':.2f', 'indecisos': ':.2%'}
+    )
 
     fig_bar_stacked.update_traces(
-    hovertemplate="<b>%{x}</b><br>" +
-                  "Población: %{y:,.0f}<br>" +
-                  "Indecisos: %{marker.color:.2%}<br>" +
-                  "Probabilidad: %{customdata[0]:.2%}<extra></extra>",
-    texttemplate='%{y:,.0f}',
-    textposition='outside'
-)
+        hovertemplate="<b>%{x}</b><br>" +
+                      "Población: %{y:,.0f}<br>" +
+                      "Indecisos: %{marker.color:.2%}<br>" +
+                      "Probabilidad: %{customdata[0]:.2%}<extra></extra>",
+        texttemplate='%{y:,.0f}',
+        textposition='outside'
+    )
 
     fig_bar_stacked.update_layout(
         uniformtext_minsize=10,
@@ -119,13 +117,12 @@ with col1:
         )
     )
 
-    # Añadir narrativa
-st.markdown("**🌎 Comparación Regional**")
-st.caption("Este gráfico permite comparar el tamaño poblacional y el nivel de indecisión electoral en cada región.")
-st.plotly_chart(fig_bar_stacked, use_container_width=True)
+    st.markdown("**🌎 Comparación Regional**")
+    st.caption("Este gráfico permite comparar el tamaño poblacional y el nivel de indecisión electoral en cada región.")
+    st.plotly_chart(fig_bar_stacked, use_container_width=True)
 
 
-# ----------- TAB 2: Análisis Regional -----------
+# ----------- TAB 2: Análisis Regional ----------- 
 with tabs[1]:
     st.subheader("🔍 Análisis por Región")
 
@@ -134,39 +131,42 @@ with tabs[1]:
 
     col1, col2 = st.columns(2)
 
-with col1:
-    st.markdown(f"**📊 Distribución de Probabilidad de Victoria ({region_seleccionada})**")
-    st.caption("Cada punto representa una estimación individual. Las cajas agrupan el rango típico de probabilidades por candidato.")
-    fig_box = px.box(
-        df_region, x="candidato", y="probabilidad", color="candidato",
-        points="all", hover_data=df_region.columns,
-        category_orders={"candidato": df_region.groupby("candidato")["probabilidad"].mean().sort_values(ascending=False).index.tolist()},
-        color_discrete_sequence=px.colors.qualitative.Set2,
-        title=f"Probabilidad de Victoria por Candidato en {region_seleccionada}"
-    )
-    st.plotly_chart(fig_box, use_container_width=True)
+    # Gráfico de Probabilidad de Victoria en la región seleccionada
+    with col1:
+        st.markdown(f"**📊 Distribución de Probabilidad de Victoria ({region_seleccionada})**")
+        st.caption("Cada punto representa una estimación individual. Las cajas agrupan el rango típico de probabilidades por candidato.")
+        fig_box = px.box(
+            df_region, x="candidato", y="probabilidad", color="candidato",
+            points="all", hover_data=df_region.columns,
+            category_orders={"candidato": df_region.groupby("candidato")["probabilidad"].mean().sort_values(ascending=False).index.tolist()},
+            color_discrete_sequence=px.colors.qualitative.Set2,
+            title=f"Probabilidad de Victoria por Candidato en {region_seleccionada}"
+        )
+        st.plotly_chart(fig_box, use_container_width=True)
 
-with col2:
-    st.markdown("**🧭 Nivel de Indecisión por Candidato**")
-    st.caption("Muestra el porcentaje promedio de personas indecisas por cada candidato en la región.")
-    df_indecisos = df_region.groupby("candidato")["indecisos"].mean().round(2).reset_index()
-    fig_bar = px.bar(
-        df_indecisos.sort_values("indecisos", ascending=False),
-        x="candidato", y="indecisos", color="candidato",
-        text="indecisos",
-        color_discrete_sequence=px.colors.qualitative.Set1,
-        title=f"Porcentaje Promedio de Indecisos por Candidato en {region_seleccionada}"
-    )
-    fig_bar.update_traces(texttemplate='%{text:.2f}%', textposition='outside')
-    fig_bar.update_layout(yaxis_title="Indecisos (%)")
-    st.plotly_chart(fig_bar, use_container_width=True)
+    # Gráfico de Indecisos en la región seleccionada
+    with col2:
+        st.markdown("**🧭 Nivel de Indecisión por Candidato**")
+        st.caption("Muestra el porcentaje promedio de personas indecisas por cada candidato en la región.")
+        df_indecisos = df_region.groupby("candidato")["indecisos"].mean().round(2).reset_index()
+        fig_bar = px.bar(
+            df_indecisos.sort_values("indecisos", ascending=False),
+            x="candidato", y="indecisos", color="candidato",
+            text="indecisos",
+            color_discrete_sequence=px.colors.qualitative.Set1,
+            title=f"Porcentaje Promedio de Indecisos por Candidato en {region_seleccionada}"
+        )
+        fig_bar.update_traces(texttemplate='%{text:.2f}%', textposition='outside')
+        fig_bar.update_layout(yaxis_title="Indecisos (%)")
+        st.plotly_chart(fig_bar, use_container_width=True)
 
+    # Mostrar tabla detallada para la región seleccionada
     st.markdown("---")
     st.markdown("**📋 Tabla de datos detallados para la región seleccionada**")
     st.dataframe(df_region.reset_index(drop=True), use_container_width=True, height=400)
 
 
-# ----------- TAB 3: Demografía -----------
+# ----------- TAB 3: Demografía ----------- 
 with tabs[2]:
     st.subheader("Análisis Demográfico")
     st.caption("Explora el apoyo electoral cruzado con sexo y grupo etario.")
