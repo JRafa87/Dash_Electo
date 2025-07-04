@@ -160,21 +160,23 @@ with tabs[1]:
         fig_bar.update_layout(yaxis_title="Indecisos (%)")
         st.plotly_chart(fig_bar, use_container_width=True)
 
-    # Mostrar tabla detallada para la región seleccionada
-        st.markdown("---")
-        st.markdown(f"**📋 Datos detallados de la región: {region_seleccionada}**")
-        st.caption("Visualiza los registros individuales correspondientes a la región seleccionada.")
+    # Mostrar tabla detallada para la región seleccionada debajo de los gráficos
+    st.markdown("---")
+    st.markdown(f"**📋 Datos detallados de la región: {region_seleccionada}**")
+    st.caption("Visualiza los registros individuales correspondientes a la región seleccionada.")
 
-        st.markdown("""
-         <div class="hover-box">
-            Esta tabla muestra los valores de probabilidad, indecisión y características demográficas 
-            para analizar en detalle el comportamiento electoral regional.
-         </div>
-         """, unsafe_allow_html=True)
+    st.markdown(""" 
+    <div class="hover-box">
+        Esta tabla muestra los valores de probabilidad, indecisión y características demográficas 
+        para analizar en detalle el comportamiento electoral regional.
+    </div>
+    """, unsafe_allow_html=True)
 
-# Asegurar que la columna 'region' esté visible aunque esté filtrado
-        cols = ["region"] + [col for col in df_region.columns if col != "region"]
-        st.dataframe(df_region[cols].reset_index(drop=True), use_container_width=True, height=400)
+    # Asegurar que la columna 'region' esté visible aunque esté filtrado
+    cols = ["region"] + [col for col in df_region.columns if col != "region"]
+
+    # Mostrar la tabla ocupando el ancho completo
+    st.dataframe(df_region[cols].reset_index(drop=True), use_container_width=True, height=400)
 
 
 
