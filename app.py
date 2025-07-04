@@ -175,11 +175,19 @@ with tabs[2]:
     sexo_sel = col1.radio("Sexo:", df["sexo"].unique())
     edad_sel = col2.selectbox("Grupo Etario:", df["edad_grupo"].unique())
 
+    # Filtrar el DataFrame según las selecciones de sexo y grupo etario
+    df_filtrado = df[(df["sexo"] == sexo_sel) & (df["edad_grupo"] == edad_sel)]
+
+    # Crear el gráfico de barras
     fig_demo = px.histogram(
-    df_demo.sort_values("candidato"), x="candidato", color="ganador",
-    title=f"Apoyo Electoral - {sexo_sel}, Edad {edad_sel}",
-    barmode="group",
-    color_discrete_sequence=px.colors.qualitative.Bold
-)
-fig_demo.update_layout(xaxis_title="Candidato", yaxis_title="Frecuencia de Apoyo")
-st.plotly_chart(fig_demo, use_container_width=True)
+        df_filtrado.sort_values("candidato"), 
+        x="candidato", color="ganador",
+        title=f"Apoyo Electoral - {sexo_sel}, Edad {edad_sel}",
+        barmode="group",
+        color_discrete_sequence=px.colors.qualitative.Bold
+    )
+    fig_demo.update_layout(
+        xaxis_title="Candidato", 
+        yaxis_title="Frecuencia de Apoyo"
+    )
+    st.plotly_chart(fig_demo, use_container_width=True)
