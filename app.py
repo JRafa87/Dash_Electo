@@ -169,7 +169,7 @@ with col2:
 # ----------- TAB 3: Demografía -----------
 with tabs[2]:
     st.subheader("Análisis Demográfico")
-    st.markdown("Explora el apoyo electoral cruzado con sexo y grupo etario.")
+    st.caption("Explora el apoyo electoral cruzado con sexo y grupo etario.")
 
     col1, col2 = st.columns(2)
     sexo_sel = col1.radio("Sexo:", df["sexo"].unique())
