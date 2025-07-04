@@ -166,11 +166,11 @@ with tabs[1]:
         st.caption("Visualiza los registros individuales correspondientes a la región seleccionada.")
 
         st.markdown("""
-<div class="hover-box">
-    Esta tabla muestra los valores de probabilidad, indecisión y características demográficas 
-    para analizar en detalle el comportamiento electoral regional.
-</div>
-""", unsafe_allow_html=True)
+         <div class="hover-box">
+            Esta tabla muestra los valores de probabilidad, indecisión y características demográficas 
+            para analizar en detalle el comportamiento electoral regional.
+         </div>
+         """, unsafe_allow_html=True)
 
 # Asegurar que la columna 'region' esté visible aunque esté filtrado
         cols = ["region"] + [col for col in df_region.columns if col != "region"]
