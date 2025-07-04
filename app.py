@@ -161,11 +161,11 @@ with tabs[1]:
         st.plotly_chart(fig_bar, use_container_width=True)
 
     # Mostrar tabla detallada para la región seleccionada
-    st.markdown("---")
-    st.markdown(f"**📋 Datos detallados de la región: {region_seleccionada}**")
-    st.caption("Visualiza los registros individuales correspondientes a la región seleccionada.")
+        st.markdown("---")
+        st.markdown(f"**📋 Datos detallados de la región: {region_seleccionada}**")
+        st.caption("Visualiza los registros individuales correspondientes a la región seleccionada.")
 
-    st.markdown("""
+        st.markdown("""
 <div class="hover-box">
     Esta tabla muestra los valores de probabilidad, indecisión y características demográficas 
     para analizar en detalle el comportamiento electoral regional.
@@ -173,8 +173,8 @@ with tabs[1]:
 """, unsafe_allow_html=True)
 
 # Asegurar que la columna 'region' esté visible aunque esté filtrado
-cols = ["region"] + [col for col in df_region.columns if col != "region"]
-st.dataframe(df_region[cols].reset_index(drop=True), use_container_width=True, height=400)
+        cols = ["region"] + [col for col in df_region.columns if col != "region"]
+        st.dataframe(df_region[cols].reset_index(drop=True), use_container_width=True, height=400)
 
 
 
