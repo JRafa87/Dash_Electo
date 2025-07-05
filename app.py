@@ -72,7 +72,7 @@ with tabs[0]:
         st.plotly_chart(fig_prob, use_container_width=True)
 
     # Gráfico de comparación regional (Solo en la pestaña de Análisis Regional)
-    st.subheader("Distribución de Indicadores por Región")
+    st.subheader("Población vs Indecisos por región")
     df_map = df.groupby("region").agg({
         "probabilidad": "mean",
         "poblacion_region": "first",
