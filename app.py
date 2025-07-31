@@ -208,7 +208,7 @@ with tabs[2]:
 
 # ----------- TAB 4: Predicción ----------- 
 
-with tab_prediccion:  # Esta es tu pestaña "Modelo de Predicción"
+with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
     st.subheader("🔍 Predicción de Resultados Electorales")
     st.markdown("Completa los datos para estimar la **probabilidad de victoria** y si el candidato **ganaría o no**.")
 
