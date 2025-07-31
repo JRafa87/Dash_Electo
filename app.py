@@ -242,7 +242,7 @@ with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
             candidato = st.selectbox("👤 Candidato", label_encoders["candidato"].classes_)
             sexo = st.selectbox("🧬 Sexo", label_encoders["sexo"].classes_)
             grupo_etario = st.selectbox("🎂 Grupo Etario", label_encoders["edad_grupo"].classes_)
-            sentimiento = st.selectbox("💬 Sentimiento", label_encoders["sentimiento"].classes_)
+            
 
         with col2:
             ingreso_promedio = st.slider("💰 Ingreso Promedio", 500.0, 5000.0, 1500.0)
@@ -250,6 +250,8 @@ with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
             indecisos = st.slider("🌀 Nivel de Indecisos (%)", 0.0, 100.0, 20.0)
             porcentaje_grupo = st.slider("👥 Porcentaje del Grupo Etario (%)", 0.0, 100.0, 30.0)
             poblacion = st.slider("🏙️ Población Regional", 1000, 1000000, 50000)
+            sentimiento = st.slider("💬 Sentimiento", min_value=0.2, max_value=0.8, step=0.01)
+
 
         submitted = st.form_submit_button("🔍 Predecir")
 
