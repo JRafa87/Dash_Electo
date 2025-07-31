@@ -249,7 +249,7 @@ with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
             score = st.slider("📈 Score", 0.0, 1.0, 0.5)
             indecisos = st.slider("🌀 Nivel de Indecisos (%)", 0.0, 100.0, 20.0)
             porcentaje_grupo = st.slider("👥 Porcentaje del Grupo Etario (%)", 0.0, 100.0, 30.0)
-            poblacion = st.slider("🏙️ Población Regional", 1000, 1000000, 50000)
+            poblacion_region = st.slider("🏙️ Población Regional", 1000, 1000000, 50000)
             sentimiento = st.slider("💬 Sentimiento", min_value=0.2, max_value=0.8, step=0.01)
 
 
@@ -266,7 +266,7 @@ with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
             "score": score,
             "indecisos": indecisos,
             "porcentaje_grupo": porcentaje_grupo,
-            "poblacion": poblacion
+            "poblacion_region": poblacion_region
         }
 
         X_input = codificar_input(input_dict, label_encoders)
