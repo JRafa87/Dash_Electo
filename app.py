@@ -260,7 +260,7 @@ with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
             "region": region,
             "candidato": candidato,
             "sexo": sexo,
-            "grupo_etario": edad_grupo,
+            "grupo_etario": grupo_etario,
             "sentimiento": sentimiento,
             "ingreso_promedio": ingreso_promedio,
             "score": score,
