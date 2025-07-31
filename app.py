@@ -227,7 +227,7 @@ with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
         label_encoders = st.session_state.label_encoders
 
         st.write("Label Encoders cargados:", list(label_encoders.keys()))
-        
+
     def codificar_input(input_dict, label_encoders):
         df = pd.DataFrame([input_dict])
         for col, le in label_encoders.items():
@@ -241,7 +241,7 @@ with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
             region = st.selectbox("🗺️ Región", label_encoders["region"].classes_)
             candidato = st.selectbox("👤 Candidato", label_encoders["candidato"].classes_)
             sexo = st.selectbox("🧬 Sexo", label_encoders["sexo"].classes_)
-            grupo_etario = st.selectbox("🎂 Grupo Etario", label_encoders["grupo_etario"].classes_)
+            grupo_etario = st.selectbox("🎂 Grupo Etario", label_encoders["edad_grupo"].classes_)
             sentimiento = st.selectbox("💬 Sentimiento", label_encoders["sentimiento"].classes_)
 
         with col2:
