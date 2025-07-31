@@ -261,12 +261,14 @@ with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
             "candidato": candidato,
             "sexo": sexo,
             "edad_grupo": edad_grupo,
-            "sentimiento": sentimiento,
+            "poblacion_region": poblacion_region,
+            "porcentaje_grupo": porcentaje_grupo,
             "ingreso_promedio": ingreso_promedio,
             "score": score,
+            "sentimiento": sentimiento,
             "indecisos": indecisos,
-            "porcentaje_grupo": porcentaje_grupo,
-            "poblacion_region": poblacion_region
+            
+            
         }
 
         X_input = codificar_input(input_dict, label_encoders)
