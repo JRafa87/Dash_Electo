@@ -241,7 +241,7 @@ with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
             region = st.selectbox("🗺️ Región", label_encoders["region"].classes_)
             candidato = st.selectbox("👤 Candidato", label_encoders["candidato"].classes_)
             sexo = st.selectbox("🧬 Sexo", label_encoders["sexo"].classes_)
-            grupo_etario = st.selectbox("🎂 Grupo Etario", label_encoders["edad_grupo"].classes_)
+            edad_grupo = st.selectbox("🎂 Grupo Etario", label_encoders["edad_grupo"].classes_)
             
 
         with col2:
@@ -260,7 +260,7 @@ with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
             "region": region,
             "candidato": candidato,
             "sexo": sexo,
-            "grupo_etario": grupo_etario,
+            "edad_grupo": edad_grupo,
             "sentimiento": sentimiento,
             "ingreso_promedio": ingreso_promedio,
             "score": score,
