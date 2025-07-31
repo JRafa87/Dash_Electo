@@ -37,7 +37,7 @@ df = pd.read_csv("dataset_electoral.csv")
 st.title("🌏 Predicción Electoral Interactiva")
 
 # --- Tabs ---
-tabs = st.tabs(["🌐 Resumen Nacional", "🌍 Análisis Regional", "🧑‍🏫 Demografía", "🔮 Modelo de Predicción"])
+tabs = st.tabs(["🌐 Resumen Nacional", "🌍 Análisis Regional", "🧑‍🏫 Demografía", "🔮 Modelo de Predicción", "🧠 Simulación de Escenarios"])
 
 # ----------- TAB 1: Resumen Nacional ----------- 
 with tabs[0]:
@@ -297,3 +297,77 @@ with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
            st.warning(f"❌ El candidato seleccionado **NO GANARÍA** según la predicción actual. ⚠️")
 
         st.info(f"🔍 Confianza del modelo: {class_prob*100:.2f}%")
+
+# ----------- TAB 5: Simulación ----------- 
+with tabs[4]:
+    st.subheader("Escenarios y Simulaciones")
+
+    def mostrar_arbol_decision(prob, ganador, exp, infl):
+    st.subheader("📍 Árbol de decisión")
+    if prob > 0.6:
+        if infl == "alta":
+            st.success("✅ Decisión: Apoyar al candidato (alta probabilidad e influencia)")
+        elif exp == "alta":
+            st.success("✅ Decisión: Apoyar al candidato (alta exposición)")
+        else:
+            st.warning("🤔 Decisión: Evaluar más indicadores antes de apoyar")
+    else:
+        st.error("❌ Decisión: No apoyar al candidato (baja probabilidad)")
+
+def mostrar_matriz_pago():
+    st.subheader("📊 Matriz de Pago (Campaña)")
+    data = {
+        "Decisión": ["Apoyar", "No Apoyar"],
+        "Gana": [100, -50],
+        "Pierde": [-100, 0]
+    }
+    matriz = pd.DataFrame(data)
+    st.table(matriz)
+
+def simular_montecarlo(prob, n=1000):
+    st.subheader("🎲 Simulación de Montecarlo")
+    resultados = np.random.rand(n) < prob
+    tasa_ganadora = np.mean(resultados)
+    st.write(f"📈 Tasa estimada de victoria en {n} simulaciones: **{tasa_ganadora * 100:.2f}%**")
+
+    fig, ax = plt.subplots()
+    ax.hist(resultados.astype(int), bins=[-0.5, 0.5, 1.5], edgecolor='black', rwidth=0.6)
+    ax.set_xticks([0, 1])
+    ax.set_xticklabels(['Pierde', 'Gana'])
+    ax.set_ylabel("Frecuencia")
+    st.pyplot(fig)
+
+def mostrar_insights(prob, ganador, exp, infl):
+    st.subheader("🔍 Insights accionables")
+    if prob > 0.8 and ganador:
+        st.info("✅ Alta probabilidad de victoria. Invertir más en zonas con exposición baja.")
+    elif prob < 0.5:
+        st.warning("⚠️ Riesgo elevado de derrota. Enfocar recursos en redes y discurso positivo.")
+    elif infl == "alta" and exp != "alta":
+        st.info("🎯 Fortalezca la visibilidad en medios para potenciar su influencia actual.")
+    else:
+        st.info("📌 Monitoree las métricas sociales y adapte la campaña según sentimiento y exposición.")
+
+# Pestaña: Escenarios y Simulaciones
+def pestaña_escenarios_simulacion():
+    st.title("🔮 Escenarios y Simulaciones")
+    st.markdown("Simula diferentes escenarios con base en las predicciones o ingresa tus propios valores.")
+
+    st.subheader("📥 Ingreso de Variables Manual")
+    col1, col2 = st.columns(2)
+
+    with col1:
+        probabilidad = st.slider("Probabilidad de ganar (%)", 0.0, 100.0, 75.0, step=0.1)
+        presupuesto = st.number_input("Presupuesto estimado (en miles)", min_value=0, step=10)
+        exposicion = st.selectbox("Nivel de exposición", ["baja", "media", "alta"])
+
+    with col2:
+        gana = st.checkbox("¿Ganador en escenario?", value=True)
+        influencia = st.selectbox("Influencia en redes", ["baja", "media", "alta"])
+
+    if st.button("▶️ Ejecutar Simulación"):
+        prob_decimal = probabilidad / 100
+        mostrar_arbol_decision(prob_decimal, gana, exposicion, influencia)
+        mostrar_matriz_pago()
+        simular_montecarlo(prob_decimal, n=1000)
+        mostrar_insights(prob_decimal, gana, exposicion, influencia)
