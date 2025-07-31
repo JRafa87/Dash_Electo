@@ -281,6 +281,15 @@ with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
         class_pred = class_model.predict(X_input)[0]
         class_prob = class_model.predict_proba(X_input)[0][class_pred]
 
+        # Guardar en sesión
+        st.session_state.prediccion_resultado = {
+           "input_data": input_dict,
+        "X_input": X_input,
+        "probabilidad": float(probabilidad_estim),
+        "ganador": int(class_pred),
+        "confianza": float(class_prob)
+        }
+
         #resultado = "GANARÍA" if class_pred == 1 else "NO GANARÍA"
         if class_pred == 1:
            st.success(f"✅ El candidato seleccionado **GANARÍA** en este escenario. 📢")
