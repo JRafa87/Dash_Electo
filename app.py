@@ -300,9 +300,12 @@ with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
 
 # ----------- TAB 5: Simulación ----------- 
 with tabs[4]:
-    #st.title("🔮 Escenarios y Simulaciones")
+    st.title("🔮 Escenarios y Simulaciones")
     st.markdown("Simula diferentes escenarios con base en las predicciones o ingresa tus propios valores.")
 
+    import numpy as np
+    import matplotlib.pyplot as plt
+    
     def mostrar_arbol_decision(prob, ganador, exp, infl):
         st.subheader("📍 Árbol de decisión")
         if prob > 0.6:
