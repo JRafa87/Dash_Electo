@@ -215,7 +215,7 @@ with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
     # Cargar modelos si no se han cargado ya
     if "reg_model" not in st.session_state:
         import joblib
-        reg_model = joblib.load("models/reg_model.pkl")
+        reg_model = joblib.load("models/reg_arbol.pkl")
         class_model = joblib.load("models/modelo_xgb.pkl")
         label_encoders = joblib.load("models/label_encoders.pkl")
         st.session_state.reg_model = reg_model
