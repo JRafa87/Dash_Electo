@@ -205,3 +205,80 @@ with tabs[2]:
         yaxis_title="Frecuencia de Apoyo"
     )
     st.plotly_chart(fig_demo, use_container_width=True)
+
+# ----------- TAB 4: Predicción ----------- 
+
+with tab_prediccion:  # Esta es tu pestaña "Modelo de Predicción"
+    st.subheader("🔍 Predicción de Resultados Electorales")
+    st.markdown("Completa los datos para estimar la **probabilidad de victoria** y si el candidato **ganaría o no**.")
+
+    # Cargar modelos si no se han cargado ya
+    if "reg_model" not in st.session_state:
+        import joblib
+        reg_model = joblib.load("models/reg_model.pkl")
+        class_model = joblib.load("models/modelo_xgb.pkl")
+        label_encoders = joblib.load("models/label_encoders.pkl")
+        st.session_state.reg_model = reg_model
+        st.session_state.class_model = class_model
+        st.session_state.label_encoders = label_encoders
+    else:
+        reg_model = st.session_state.reg_model
+        class_model = st.session_state.class_model
+        label_encoders = st.session_state.label_encoders
+
+    def codificar_input(input_dict, label_encoders):
+        df = pd.DataFrame([input_dict])
+        for col, le in label_encoders.items():
+            df[col] = le.transform(df[col])
+        return df
+
+    with st.form("formulario_prediccion"):
+        col1, col2 = st.columns(2)
+
+        with col1:
+            region = st.selectbox("🗺️ Región", label_encoders["region"].classes_)
+            candidato = st.selectbox("👤 Candidato", label_encoders["candidato"].classes_)
+            sexo = st.selectbox("🧬 Sexo", label_encoders["sexo"].classes_)
+            grupo_etario = st.selectbox("🎂 Grupo Etario", label_encoders["grupo_etario"].classes_)
+            sentimiento = st.selectbox("💬 Sentimiento", label_encoders["sentimiento"].classes_)
+
+        with col2:
+            ingreso_promedio = st.slider("💰 Ingreso Promedio", 500.0, 5000.0, 1500.0)
+            score = st.slider("📈 Score", 0.0, 1.0, 0.5)
+            indecisos = st.slider("🌀 Nivel de Indecisos (%)", 0.0, 100.0, 20.0)
+            porcentaje_grupo = st.slider("👥 Porcentaje del Grupo Etario (%)", 0.0, 100.0, 30.0)
+            poblacion = st.slider("🏙️ Población Regional", 1000, 1000000, 50000)
+
+        submitted = st.form_submit_button("🔍 Predecir")
+
+    if submitted:
+        input_dict = {
+            "region": region,
+            "candidato": candidato,
+            "sexo": sexo,
+            "grupo_etario": grupo_etario,
+            "sentimiento": sentimiento,
+            "ingreso_promedio": ingreso_promedio,
+            "score": score,
+            "indecisos": indecisos,
+            "porcentaje_grupo": porcentaje_grupo,
+            "poblacion": poblacion
+        }
+
+        X_input = codificar_input(input_dict, label_encoders)
+
+        # Predicción regresiva
+        probabilidad_estim = reg_model.predict(X_input)[0]
+        st.metric("📊 Probabilidad estimada de victoria", f"{probabilidad_estim*100:.2f}%")
+
+        # Clasificación
+        class_pred = class_model.predict(X_input)[0]
+        class_prob = class_model.predict_proba(X_input)[0][class_pred]
+
+        #resultado = "GANARÍA" if class_pred == 1 else "NO GANARÍA"
+        if class_pred == 1:
+           st.success(f"✅ El candidato seleccionado **GANARÍA** en este escenario. 📢")
+        else:
+           st.warning(f"❌ El candidato seleccionado **NO GANARÍA** según la predicción actual. ⚠️")
+
+        st.info(f"🔍 Confianza del modelo: {class_prob*100:.2f}%")
