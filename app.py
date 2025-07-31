@@ -226,6 +226,8 @@ with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
         class_model = st.session_state.class_model
         label_encoders = st.session_state.label_encoders
 
+        st.write("Label Encoders cargados:", list(label_encoders.keys()))
+        
     def codificar_input(input_dict, label_encoders):
         df = pd.DataFrame([input_dict])
         for col, le in label_encoders.items():
