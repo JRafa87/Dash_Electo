@@ -6,3 +6,4 @@ joblib
 folium
 streamlit_folium
 matplotlib
+xgboost
