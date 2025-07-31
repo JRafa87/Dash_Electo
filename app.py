@@ -300,59 +300,56 @@ with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
 
 # ----------- TAB 5: Simulación ----------- 
 with tabs[4]:
-    st.subheader("Escenarios y Simulaciones")
-
-    def mostrar_arbol_decision(prob, ganador, exp, infl):
-    st.subheader("📍 Árbol de decisión")
-    if prob > 0.6:
-        if infl == "alta":
-            st.success("✅ Decisión: Apoyar al candidato (alta probabilidad e influencia)")
-        elif exp == "alta":
-            st.success("✅ Decisión: Apoyar al candidato (alta exposición)")
-        else:
-            st.warning("🤔 Decisión: Evaluar más indicadores antes de apoyar")
-    else:
-        st.error("❌ Decisión: No apoyar al candidato (baja probabilidad)")
-
-def mostrar_matriz_pago():
-    st.subheader("📊 Matriz de Pago (Campaña)")
-    data = {
-        "Decisión": ["Apoyar", "No Apoyar"],
-        "Gana": [100, -50],
-        "Pierde": [-100, 0]
-    }
-    matriz = pd.DataFrame(data)
-    st.table(matriz)
-
-def simular_montecarlo(prob, n=1000):
-    st.subheader("🎲 Simulación de Montecarlo")
-    resultados = np.random.rand(n) < prob
-    tasa_ganadora = np.mean(resultados)
-    st.write(f"📈 Tasa estimada de victoria en {n} simulaciones: **{tasa_ganadora * 100:.2f}%**")
-
-    fig, ax = plt.subplots()
-    ax.hist(resultados.astype(int), bins=[-0.5, 0.5, 1.5], edgecolor='black', rwidth=0.6)
-    ax.set_xticks([0, 1])
-    ax.set_xticklabels(['Pierde', 'Gana'])
-    ax.set_ylabel("Frecuencia")
-    st.pyplot(fig)
-
-def mostrar_insights(prob, ganador, exp, infl):
-    st.subheader("🔍 Insights accionables")
-    if prob > 0.8 and ganador:
-        st.info("✅ Alta probabilidad de victoria. Invertir más en zonas con exposición baja.")
-    elif prob < 0.5:
-        st.warning("⚠️ Riesgo elevado de derrota. Enfocar recursos en redes y discurso positivo.")
-    elif infl == "alta" and exp != "alta":
-        st.info("🎯 Fortalezca la visibilidad en medios para potenciar su influencia actual.")
-    else:
-        st.info("📌 Monitoree las métricas sociales y adapte la campaña según sentimiento y exposición.")
-
-# Pestaña: Escenarios y Simulaciones
-def pestaña_escenarios_simulacion():
-    st.title("🔮 Escenarios y Simulaciones")
+    #st.title("🔮 Escenarios y Simulaciones")
     st.markdown("Simula diferentes escenarios con base en las predicciones o ingresa tus propios valores.")
 
+    def mostrar_arbol_decision(prob, ganador, exp, infl):
+        st.subheader("📍 Árbol de decisión")
+        if prob > 0.6:
+            if infl == "alta":
+                st.success("✅ Decisión: Apoyar al candidato (alta probabilidad e influencia)")
+            elif exp == "alta":
+                st.success("✅ Decisión: Apoyar al candidato (alta exposición)")
+            else:
+                st.warning("🤔 Decisión: Evaluar más indicadores antes de apoyar")
+        else:
+            st.error("❌ Decisión: No apoyar al candidato (baja probabilidad)")
+
+    def mostrar_matriz_pago():
+        st.subheader("📊 Matriz de Pago (Campaña)")
+        data = {
+            "Decisión": ["Apoyar", "No Apoyar"],
+            "Gana": [100, -50],
+            "Pierde": [-100, 0]
+        }
+        matriz = pd.DataFrame(data)
+        st.table(matriz)
+
+    def simular_montecarlo(prob, n=1000):
+        st.subheader("🎲 Simulación de Montecarlo")
+        resultados = np.random.rand(n) < prob
+        tasa_ganadora = np.mean(resultados)
+        st.write(f"📈 Tasa estimada de victoria en {n} simulaciones: **{tasa_ganadora * 100:.2f}%**")
+
+        fig, ax = plt.subplots()
+        ax.hist(resultados.astype(int), bins=[-0.5, 0.5, 1.5], edgecolor='black', rwidth=0.6)
+        ax.set_xticks([0, 1])
+        ax.set_xticklabels(['Pierde', 'Gana'])
+        ax.set_ylabel("Frecuencia")
+        st.pyplot(fig)
+
+    def mostrar_insights(prob, ganador, exp, infl):
+        st.subheader("🔍 Insights accionables")
+        if prob > 0.8 and ganador:
+            st.info("✅ Alta probabilidad de victoria. Invertir más en zonas con exposición baja.")
+        elif prob < 0.5:
+            st.warning("⚠️ Riesgo elevado de derrota. Enfocar recursos en redes y discurso positivo.")
+        elif infl == "alta" and exp != "alta":
+            st.info("🎯 Fortalezca la visibilidad en medios para potenciar su influencia actual.")
+        else:
+            st.info("📌 Monitoree las métricas sociales y adapte la campaña según sentimiento y exposición.")
+
+    # Ingreso de datos manuales
     st.subheader("📥 Ingreso de Variables Manual")
     col1, col2 = st.columns(2)
 
