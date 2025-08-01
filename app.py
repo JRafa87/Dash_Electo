@@ -300,74 +300,131 @@ with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
 
 # ----------- TAB 5: Simulación ----------- 
 with tabs[4]:
-    st.title("🔮 Escenarios y Simulaciones")
+    st.title("🧠 Escenarios y Simulaciones")
     st.markdown("Simula diferentes escenarios con base en las predicciones o ingresa tus propios valores.")
 
     import numpy as np
+    import pandas as pd
     import matplotlib.pyplot as plt
-    
-    def mostrar_arbol_decision(prob, ganador, exp, infl):
-        st.subheader("📍 Árbol de decisión")
-        if prob > 0.6:
-            if infl == "alta":
-                st.success("✅ Decisión: Apoyar al candidato (alta probabilidad e influencia)")
-            elif exp == "alta":
-                st.success("✅ Decisión: Apoyar al candidato (alta exposición)")
+    import graphviz as graphviz
+
+    st.subheader("⚙️ Fuente de datos para simulación")
+    modo_entrada = st.radio("¿Cómo deseas cargar los datos?", ["📥 Ingresar manualmente", "📊 Usar datos predichos de la pestaña anterior"])
+
+    if modo_entrada == "📊 Usar datos predichos de la pestaña anterior":
+        try:
+            if "resultado_prediccion" in st.session_state:
+                datos_pred = st.session_state.resultado_prediccion
+                probabilidad = datos_pred["probabilidad"]
+                gana = datos_pred["ganador"]
+                st.success("✅ Datos cargados desde la predicción anterior.")
             else:
-                st.warning("🤔 Decisión: Evaluar más indicadores antes de apoyar")
-        else:
-            st.error("❌ Decisión: No apoyar al candidato (baja probabilidad)")
+                st.warning("⚠️ No se encontró una predicción previa. Ingresa los valores manualmente.")
+                modo_entrada = "📥 Ingresar manualmente"
+        except:
+            st.error("Error al cargar datos predichos.")
+            modo_entrada = "📥 Ingresar manualmente"
 
-    def mostrar_matriz_pago():
-        st.subheader("📊 Matriz de Pago (Campaña)")
-        data = {
-            "Decisión": ["Apoyar", "No Apoyar"],
-            "Gana": [100, -50],
-            "Pierde": [-100, 0]
-        }
-        matriz = pd.DataFrame(data)
-        st.table(matriz)
+    if modo_entrada == "📥 Ingresar manualmente":
+        col1, col2 = st.columns(2)
+        with col1:
+            probabilidad = st.slider("Probabilidad de ganar (%)", 0.0, 100.0, 75.0, step=0.1)
+        with col2:
+            gana = st.checkbox("¿Ganador en escenario?", value=True)
 
-    def simular_montecarlo(prob, n=1000):
-        st.subheader("🎲 Simulación de Montecarlo")
-        resultados = np.random.rand(n) < prob
-        tasa_ganadora = np.mean(resultados)
-        st.write(f"📈 Tasa estimada de victoria en {n} simulaciones: **{tasa_ganadora * 100:.2f}%**")
-
-        fig, ax = plt.subplots()
-        ax.hist(resultados.astype(int), bins=[-0.5, 0.5, 1.5], edgecolor='black', rwidth=0.6)
-        ax.set_xticks([0, 1])
-        ax.set_xticklabels(['Pierde', 'Gana'])
-        ax.set_ylabel("Frecuencia")
-        st.pyplot(fig)
-
-    def mostrar_insights(prob, ganador, exp, infl):
-        st.subheader("🔍 Insights accionables")
-        if prob > 0.8 and ganador:
-            st.info("✅ Alta probabilidad de victoria. Invertir más en zonas con exposición baja.")
-        elif prob < 0.5:
-            st.warning("⚠️ Riesgo elevado de derrota. Enfocar recursos en redes y discurso positivo.")
-        elif infl == "alta" and exp != "alta":
-            st.info("🎯 Fortalezca la visibilidad en medios para potenciar su influencia actual.")
-        else:
-            st.info("📌 Monitoree las métricas sociales y adapte la campaña según sentimiento y exposición.")
-
-    # Ingreso de datos manuales
-    st.subheader("📥 Ingreso de Variables Manual")
-    col1, col2 = st.columns(2)
-
-    with col1:
-        probabilidad = st.slider("Probabilidad de ganar (%)", 0.0, 100.0, 75.0, step=0.1)
+    col3, col4 = st.columns(2)
+    with col3:
         presupuesto = st.number_input("Presupuesto estimado (en miles)", min_value=0, step=10)
         exposicion = st.selectbox("Nivel de exposición", ["baja", "media", "alta"])
-
-    with col2:
-        gana = st.checkbox("¿Ganador en escenario?", value=True)
+    with col4:
         influencia = st.selectbox("Influencia en redes", ["baja", "media", "alta"])
 
+    st.markdown("---")
     if st.button("▶️ Ejecutar Simulación"):
         prob_decimal = probabilidad / 100
+
+        # Árbol de decisión visual e interactivo
+        def mostrar_arbol_decision(prob, ganador, exp, infl):
+            st.subheader("📍 Árbol de decisión")
+            dot = graphviz.Digraph()
+            dot.node("A", "¿Probabilidad > 60%?")
+            if prob > 0.6:
+                dot.node("B", "¿Influencia Alta?")
+                dot.edge("A", "B", "Sí")
+                if infl == "alta":
+                    dot.node("C", "✅ Apoyar (Alta influencia)")
+                    dot.edge("B", "C", "Sí")
+                elif exp == "alta":
+                    dot.node("D", "✅ Apoyar (Alta exposición)")
+                    dot.edge("B", "D", "No, pero exposición alta")
+                else:
+                    dot.node("E", "🤔 Evaluar más indicadores")
+                    dot.edge("B", "E", "No")
+            else:
+                dot.node("F", "❌ No apoyar")
+                dot.edge("A", "F", "No")
+
+            st.graphviz_chart(dot)
+
+        # Matriz de pago mejorada
+        def mostrar_matriz_pago():
+            st.subheader("📊 Matriz de Pago (Decisión de campaña)")
+            matriz = pd.DataFrame({
+                "Decisión ↓ / Resultado →": ["Apoyar", "No Apoyar"],
+                "Gana": [100, -50],
+                "Pierde": [-100, 0]
+            }).set_index("Decisión ↓ / Resultado →")
+            st.dataframe(matriz, use_container_width=True)
+
+        # Simulación de Montecarlo
+        def simular_montecarlo(prob, n=1000):
+            st.subheader("🎲 Simulación de Montecarlo")
+            simulaciones = np.random.rand(n) < prob
+            tasa_ganadora = np.mean(simulaciones)
+
+            col_sim1, col_sim2 = st.columns(2)
+            with col_sim1:
+                st.metric("Tasa estimada de victoria", f"{tasa_ganadora*100:.2f} %")
+            with col_sim2:
+                st.metric("Número de simulaciones", f"{n:,}")
+
+            fig, ax = plt.subplots()
+            ax.hist(simulaciones.astype(int), bins=[-0.5, 0.5, 1.5], edgecolor='black', rwidth=0.6, color="#3b82f6")
+            ax.set_xticks([0, 1])
+            ax.set_xticklabels(['Pierde', 'Gana'])
+            ax.set_ylabel("Frecuencia")
+            st.pyplot(fig)
+
+            # Opcional: descarga CSV
+            if st.checkbox("📥 Descargar resultados de la simulación"):
+                df_sim = pd.DataFrame({"Resultado": np.where(simulaciones, "Gana", "Pierde")})
+                st.download_button("Descargar CSV", df_sim.to_csv(index=False), "simulacion_montecarlo.csv")
+
+        # Insights accionables
+        def mostrar_insights(prob, ganador, exp, infl):
+            st.subheader("🔍 Insights accionables")
+            insights = []
+
+            if prob > 0.8 and ganador:
+                insights.append("✅ Alta probabilidad de victoria. Invertir más en zonas con exposición baja.")
+            if prob < 0.5:
+                insights.append("⚠️ Riesgo elevado de derrota. Enfocar recursos en redes y discurso positivo.")
+            if infl == "alta" and exp != "alta":
+                insights.append("🎯 Fortalezca la visibilidad en medios para potenciar su influencia actual.")
+            if exp == "media" and not ganador:
+                insights.append("📢 Reforzar presencia territorial con actos públicos.")
+            if presupuesto < 50:
+                insights.append("💰 Presupuesto limitado. Optimizar microsegmentación de mensajes.")
+
+            if insights:
+                for i, tip in enumerate(insights[:3]):
+                    st.info(f"Insight {i+1}: {tip}")
+            else:
+                st.info("📌 Mantenga seguimiento regular de exposición, presupuesto e intención de voto.")
+
+        # Ejecutar todo
         mostrar_arbol_decision(prob_decimal, gana, exposicion, influencia)
         mostrar_matriz_pago()
-        simular_montecarlo(prob_decimal, n=1000)
+        simular_montecarlo(prob_decimal)
         mostrar_insights(prob_decimal, gana, exposicion, influencia)
+
