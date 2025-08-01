@@ -368,13 +368,33 @@ with tabs[4]:
 
         # Matriz de pago mejorada
         def mostrar_matriz_pago():
-            st.subheader("📊 Matriz de Pago (Decisión de campaña)")
-            matriz = pd.DataFrame({
-                "Decisión ↓ / Resultado →": ["Apoyar", "No Apoyar"],
-                "Gana": [100, -50],
-                "Pierde": [-100, 0]
-            }).set_index("Decisión ↓ / Resultado →")
-            st.dataframe(matriz, use_container_width=True)
+        st.subheader("📊 Matriz de Pago (Campaña)")
+        st.markdown("""
+        <style>
+        .matriz td, .matriz th {
+            padding: 6px 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        </style>
+        <table class="matriz">
+            <tr>
+                <th>Decisión</th>
+                <th>Si Gana</th>
+                <th>Si Pierde</th>
+            </tr>
+            <tr>
+                <td>Apoyar</td>
+                <td style="color:green;">+100</td>
+                <td style="color:red;">-100</td>
+            </tr>
+            <tr>
+                <td>No Apoyar</td>
+                <td style="color:orange;">-50</td>
+                <td>0</td>
+            </tr>
+        </table>
+        """, unsafe_allow_html=True)
 
         # Simulación de Montecarlo
         def simular_montecarlo(prob, n=1000):
