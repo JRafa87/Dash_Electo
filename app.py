@@ -5,6 +5,8 @@ import joblib
 import folium
 from streamlit_folium import folium_static
 from branca.colormap import LinearColormap 
+import numpy as np
+import matplotlib.pyplot as plt
 
 # --- Configuracion inicial ---
 st.set_page_config(page_title="Dashboard Electoral", layout="wide")
@@ -324,7 +326,7 @@ with tabs[4]:
     st.divider()
     st.markdown("### Parámetros del Árbol de Decisión")
     umbral_arbol = st.slider("Umbral de probabilidad", 0.0, 1.0, 0.6, 0.01)
-    operador = st.radio("Condición de decisión", (">", ">="))
+    operador = st.radio("Condición de decisión", (">", ">=" ,"<"))
 
     if st.button("▶️ Ejecutar Simulación"):
 
@@ -374,6 +376,8 @@ with tabs[4]:
         """)
 
         st.divider()
+
+    
 
         # Simulación de Montecarlo
         st.subheader("🎲 Simulación de Montecarlo")
