@@ -300,7 +300,7 @@ with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
 
 # ----------- TAB 5: Simulación ----------- 
 
-    with tabs[4]:
+with tabs[4]:
     st.title("🧠 Escenarios y Simulaciones")
     st.markdown("Simula diferentes escenarios con base en las predicciones o ingresa tus propios valores.")
 
