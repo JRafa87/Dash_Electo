@@ -299,20 +299,18 @@ with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
         st.info(f"🔍 Confianza del modelo: {class_prob*100:.2f}%")
 
 # ----------- TAB 5: Simulación ----------- 
-with tabs[4]:
+
+    with tabs[4]:
     st.title("🧠 Escenarios y Simulaciones")
     st.markdown("Simula diferentes escenarios con base en las predicciones o ingresa tus propios valores.")
 
     st.markdown("### Ingresar valores del escenario")
-    
     modo_ingreso = st.radio("¿Cómo deseas ingresar los datos?", ("Usar predicción anterior", "Ingreso manual"))
 
     if modo_ingreso == "Usar predicción anterior":
         probabilidad_str = st.session_state.get("probabilidad_predicha", "75.0%")
         gana = st.session_state.get("gana_predicho", True)
-
-        st.success(f"🔮 Se está usando la probabilidad predicha: {probabilidad_str} y {'GANA' if gana else 'PIERDE'}")
-
+        st.success(f"🔮 Usando predicción: {probabilidad_str} y {'GANA' if gana else 'PIERDE'}")
         probabilidad = float(probabilidad_str.replace("%", "")) / 100
     else:
         probabilidad = st.slider("Probabilidad de ganar (%)", 0.0, 100.0, 50.0) / 100
@@ -321,94 +319,126 @@ with tabs[4]:
     presupuesto = st.selectbox("Presupuesto de campaña", ["Bajo", "Medio", "Alto"])
     exposicion = st.selectbox("Exposición en medios", ["Poca", "Moderada", "Alta"])
     influencia_redes = st.selectbox("Influencia en redes sociales", ["Baja", "Media", "Alta"])
+    simulaciones = st.number_input("Cantidad de simulaciones (Montecarlo)", min_value=100, max_value=10000, value=1000, step=100)
 
-    st.divider()
+    if st.button("▶️ Ejecutar Simulación"):
 
-    # Árbol de Decisión
-    st.subheader("📍 Árbol de decisión")
-    def mostrar_arbol(prob, gana):
-        if prob > 0.6:
-            if gana:
-                return "✅ Apoyar al candidato"
+        # Árbol de Decisión
+        st.subheader("📍 Árbol de decisión")
+        def mostrar_arbol(prob, gana):
+            if prob > 0.6:
+                if gana:
+                    return "✅ Apoyar al candidato"
+                else:
+                    return "❌ No apoyar al candidato"
             else:
                 return "❌ No apoyar al candidato"
+        
+        decision = mostrar_arbol(probabilidad, gana)
+        st.markdown(f"### Decisión sugerida: **{decision}**")
+
+        st.markdown("""
+        ```
+               ¿Probabilidad > 0.6?
+                   /         \\
+                 Sí           No
+                /              \\
+          ¿Gana elección?    ❌ No Apoyar
+             /     \\
+          Sí       No
+         ✅ Apoyar ❌ No Apoyar
+        ```
+        """)
+
+        st.divider()
+
+        # Matriz de pago
+        st.subheader("📊 Matriz de Pago (Campaña)")
+
+        matriz_pago = pd.DataFrame({
+            "Decisión": ["✅ Apoyar", "❌ No Apoyar"],
+            "Si Gana": [100, -50],
+            "Si Pierde": [-100, 0]
+        })
+
+        st.table(matriz_pago)
+
+        st.markdown("""
+        - **✅ Apoyar:** Alta ganancia si gana (+100), gran pérdida si pierde (-100).
+        - **❌ No Apoyar:** Pierdes oportunidad si gana (-50), no arriesgas si pierde (0).
+        """)
+
+        st.divider()
+
+        # Simulación de Montecarlo
+        st.subheader("🎲 Simulación de Montecarlo")
+        import numpy as np
+        import matplotlib.pyplot as plt
+
+        def simular_montecarlo(prob, n=1000):
+            resultados = np.random.rand(n) < prob
+            pagos = [100 if r else -100 for r in resultados]  # Si se apoya
+            pagos_no = [-50 if r else 0 for r in resultados]  # Si no se apoya
+            return pagos, pagos_no
+
+        pagos, pagos_no = simular_montecarlo(probabilidad, simulaciones)
+
+        fig, ax = plt.subplots()
+        ax.hist(pagos, bins=20, alpha=0.6, label="✅ Apoyar", color='green')
+        ax.hist(pagos_no, bins=20, alpha=0.6, label="❌ No Apoyar", color='red')
+        ax.set_title("Distribución de Resultados (Montecarlo)")
+        ax.set_xlabel("Ganancia/Pérdida")
+        ax.set_ylabel("Frecuencia")
+        ax.legend()
+        st.pyplot(fig)
+
+        st.divider()
+
+        # Insights dinámicos
+        st.subheader("📌 Insights del Escenario")
+
+        ganancia_media_apoyar = np.mean(pagos)
+        ganancia_media_no = np.mean(pagos_no)
+        mejor_estrategia = "✅ Apoyar" if ganancia_media_apoyar > ganancia_media_no else "❌ No Apoyar"
+
+        st.markdown(f"""
+        - 📈 **Ganancia esperada si apoyas:** {ganancia_media_apoyar:.2f}
+        - 📉 **Ganancia esperada si no apoyas:** {ganancia_media_no:.2f}
+        - 🧭 **Mejor estrategia según simulación:** **{mejor_estrategia}**
+        """)
+
+        st.markdown("---")
+
+        # Tres insights interactivos
+        st.subheader("💡 Recomendaciones Estratégicas")
+
+        insights = []
+
+        # 1. Probabilidad
+        if probabilidad > 0.75:
+            insights.append("🔹 Alta probabilidad de victoria. Consolidar el mensaje positivo y reforzar presencia territorial.")
+        elif probabilidad > 0.5:
+            insights.append("🔹 Probabilidad moderada. Enfocar la campaña en indecisos y fortalecer el posicionamiento.")
         else:
-            return "❌ No apoyar al candidato"
-    
-    decision = mostrar_arbol(probabilidad, gana)
-    st.markdown(f"### Decisión sugerida: **{decision}**")
+            insights.append("🔹 Riesgo alto de derrota. Considera reestructurar el mensaje y revisar el liderazgo visible.")
 
-    st.markdown("""
-    ```
-           ¿Probabilidad > 0.6?
-               /         \\
-             Sí           No
-            /              \\
-      ¿Gana elección?    ❌ No Apoyar
-         /     \\
-      Sí       No
-     ✅ Apoyar ❌ No Apoyar
-    ```
-    """)
+        # 2. Escenario de victoria o derrota
+        if gana:
+            insights.append("🔹 Este escenario proyecta una victoria. Mantener el ritmo e invertir en mantener la narrativa ganadora.")
+        else:
+            insights.append("🔹 Este escenario proyecta una derrota. Es urgente corregir estrategia, explorar nuevos canales o liderazgos.")
 
-    st.divider()
+        # 3. Variables estratégicas
+        if presupuesto == "Alto" and (exposicion == "Alta" or influencia_redes == "Alta"):
+            insights.append("🔹 Tienes los recursos y visibilidad. Aprovecha esto para movilizar votantes y afianzar tu ventaja.")
+        elif presupuesto == "Bajo" or influencia_redes == "Baja":
+            insights.append("🔹 Con pocos recursos y baja influencia digital, enfócate en tácticas orgánicas y alianzas estratégicas.")
+        else:
+            insights.append("🔹 Se recomienda optimizar canales intermedios y enfocar los recursos donde el impacto sea mayor.")
 
-    # Matriz de pago
-    st.subheader("📊 Matriz de Pago (Campaña)")
+        for i in insights:
+            st.markdown(i)
 
-    matriz_pago = pd.DataFrame({
-        "Decisión": ["✅ Apoyar", "❌ No Apoyar"],
-        "Gana": [100, -50],
-        "Pierde": [-100, 0]
-    })
-
-    st.table(matriz_pago)
-
-    st.markdown("""
-    - **Apoyar**: Ganar la campaña trae un beneficio (+100), pero perder genera una pérdida (-100).
-    - **No Apoyar**: Si gana sin tu apoyo pierdes oportunidades (-50), pero si pierde no se arriesga nada (0).
-    """)
-
-    st.divider()
-
-    # Simulación de Montecarlo
-    st.subheader("🎲 Simulación de Montecarlo")
-
-    import numpy as np
-    import matplotlib.pyplot as plt
-
-    def simular_montecarlo(prob, n=1000):
-        resultados = np.random.rand(n) < prob
-        pagos = [100 if r else -100 for r in resultados]  # Si se apoya
-        pagos_no = [-50 if r else 0 for r in resultados]  # Si no se apoya
-        return pagos, pagos_no
-
-    pagos, pagos_no = simular_montecarlo(probabilidad)
-
-    fig, ax = plt.subplots()
-    ax.hist(pagos, bins=20, alpha=0.6, label="✅ Apoyar", color='green')
-    ax.hist(pagos_no, bins=20, alpha=0.6, label="❌ No Apoyar", color='red')
-    ax.set_title("Distribución de Resultados (Montecarlo)")
-    ax.set_xlabel("Ganancia/Pérdida")
-    ax.set_ylabel("Frecuencia")
-    ax.legend()
-    st.pyplot(fig)
-
-    st.divider()
-
-    # Insights dinámicos
-    st.subheader("📌 Insights del Escenario")
-
-    total = len(pagos)
-    ganancia_media_apoyar = np.mean(pagos)
-    ganancia_media_no = np.mean(pagos_no)
-    mejor_estrategia = "✅ Apoyar" if ganancia_media_apoyar > ganancia_media_no else "❌ No Apoyar"
-
-    st.markdown(f"""
-    - 📈 **Ganancia esperada si apoyas:** {ganancia_media_apoyar:.2f}
-    - 📉 **Ganancia esperada si no apoyas:** {ganancia_media_no:.2f}
-    - 🧭 **Mejor estrategia según simulación:** **{mejor_estrategia}**
-    """)
 
 
 
