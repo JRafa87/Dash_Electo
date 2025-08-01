@@ -299,7 +299,7 @@ with tabs[3]:  # Esta es tu pestaña "Modelo de Predicción"
         st.info(f"🔍 Confianza del modelo: {class_prob*100:.2f}%")
 
 # ----------- TAB 5: Simulación ----------- 
-elif page == "📈 Simulación de Escenarios":
+    elif page == "📈 Simulación de Escenarios":
     st.title("📈 Simulación de Escenarios")
 
     st.markdown("### Ingresar valores del escenario")
